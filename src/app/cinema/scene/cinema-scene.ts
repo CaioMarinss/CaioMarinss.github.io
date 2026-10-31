@@ -7,6 +7,11 @@ export type ThreeModule = typeof THREE;
 export interface CinemaSceneOptions {
   /** ≤ 860px: fewer particles, lower DPR cap, centred framing. */
   readonly mobile: boolean;
+  /**
+   * Background of the static layout on phones/tablets: fewer particles, DPR 1, no antialiasing and a
+   * centred object, since the copy scrolls over it.
+   */
+  readonly ambient?: boolean;
   /** The `three` module, injected so the dynamic import lives in one place (and tests can fake it). */
   readonly three: ThreeModule;
 }
@@ -17,16 +22,27 @@ export interface ScreenPoint {
 }
 
 /** Prototype constants. */
-const PARTICLES = { desktop: 9000, mobile: 5000 } as const;
-const MAX_DPR = { desktop: 2, mobile: 1.5 } as const;
-const POINT_SIZE = { desktop: 42, mobile: 34 } as const;
+type Profile = 'desktop' | 'mobile' | 'ambient';
+const PARTICLES = { desktop: 9000, mobile: 5000, ambient: 2500 } as const;
+const MAX_DPR = { desktop: 2, mobile: 1.5, ambient: 1 } as const;
+const POINT_SIZE = { desktop: 42, mobile: 34, ambient: 30 } as const;
+/** Ambient: a small object near the top of the screen, so the copy below it stays clear. */
+const OBJECT_SCALE = { desktop: 1, mobile: 1, ambient: 0.55 } as const;
 const SHAPE_SEED = 20251031;
 const POINTER_LERP = 0.05;
 const LAYERS_LERP = 0.08;
 const MOBILE_BREAKPOINT = 860;
 /** Per-chapter framing: where the object sits (world units) to make room for the text. */
-const FRAME_X = { desktop: [1.55, 1.25, 1.35, -1.6, 0], mobile: [0, 0, 0, 0, 0] } as const;
-const FRAME_Y = { desktop: [0.05, 0.25, -0.25, 0, 0.15], mobile: [0.9, 0.9, 0.9, 0.7, 0.35] } as const;
+const FRAME_X = {
+  desktop: [1.55, 1.25, 1.35, -1.6, 0],
+  mobile: [0, 0, 0, 0, 0],
+  ambient: [0, 0, 0, 0, 0],
+} as const;
+const FRAME_Y = {
+  desktop: [0.05, 0.25, -0.25, 0, 0.15],
+  mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
+  ambient: [1.45, 1.45, 1.45, 1.4, 1.45],
+} as const;
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
@@ -59,6 +75,7 @@ export class CinemaScene {
   };
 
   private compact: boolean;
+  private readonly ambient: boolean;
   private width = 1;
   private height = 1;
   private p = 0;
@@ -72,9 +89,10 @@ export class CinemaScene {
   constructor(canvas: HTMLCanvasElement, opts: CinemaSceneOptions) {
     const T = (this.three = opts.three);
     this.compact = opts.mobile;
-    const device = opts.mobile ? 'mobile' : 'desktop';
+    this.ambient = opts.ambient ?? false;
+    const device: Profile = this.ambient ? 'ambient' : opts.mobile ? 'mobile' : 'desktop';
 
-    this.renderer = new T.WebGLRenderer({ canvas, antialias: true });
+    this.renderer = new T.WebGLRenderer({ canvas, antialias: !this.ambient });
     this.renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, MAX_DPR[device]));
     this.scene = new T.Scene();
     this.camera = new T.PerspectiveCamera(42, 1, 0.1, 100);
@@ -126,6 +144,7 @@ export class CinemaScene {
     const points = new T.Points(this.geometry, this.material);
     points.frustumCulled = false;
     this.pivot = new T.Group();
+    this.pivot.scale.setScalar(OBJECT_SCALE[device]);
     this.pivot.add(points);
     this.scene.add(this.pivot);
   }
@@ -187,7 +206,7 @@ export class CinemaScene {
     this.bgUniforms.uMouse.value.set(this.mx, -this.my);
 
     // Framing between chapters (smoothstep inside each segment).
-    const device = this.compact ? 'mobile' : 'desktop';
+    const device: Profile = this.ambient ? 'ambient' : this.compact ? 'mobile' : 'desktop';
     const k = Math.min(Math.floor(P), SHAPE_COUNT - 2);
     const f = P - k;
     const e = f * f * (3 - 2 * f);

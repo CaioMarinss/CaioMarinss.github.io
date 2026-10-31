@@ -213,11 +213,10 @@ html:not(.is-cinema):not(.is-resume) {
       padding-block: 3.5rem;
     }
 
-    // a abertura ocupa a primeira tela, com o nome grande perto da base
+    // abertura: espaço no alto para o objeto de partículas e o nome logo abaixo dele
     .ch.intro {
-      min-height: calc(100svh - var(--header-h));
-      padding-block: 2rem 3rem;
-      align-content: end;
+      min-height: 0;
+      padding-block: 34svh 3rem;
     }
 
     .title {

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, afterNextRender, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { AmbientBackground } from '../cinema/ambient-background';
 import { CinemaCanvas } from '../cinema/cinema-canvas';
 import { DisplayMode } from '../cinema/display-mode';
 import { ProjectHover } from '../cinema/project-hover';
@@ -16,7 +17,7 @@ import { StageSection } from '../sections/stage/stage';
 /** Página única: cinco capítulos; empilhados no modo estático, sobrepostos num palco fixo no modo cinema. */
 @Component({
   selector: 'app-home',
-  imports: [IntroSection, ExperienceSection, ProjectsSection, StageSection, ContactSection, CinemaCanvas],
+  imports: [IntroSection, ExperienceSection, ProjectsSection, StageSection, ContactSection, CinemaCanvas, AmbientBackground],
   template: `
     <app-intro-section />
     <app-experience-section />
@@ -25,6 +26,8 @@ import { StageSection } from '../sections/stage/stage';
     <app-contact-section />
     @if (scene()) {
       <app-cinema-canvas />
+    } @else if (hydrated()) {
+      <app-ambient-background />
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,7 +37,7 @@ export class Home {
   private readonly display = inject(DisplayMode);
   protected readonly projectHover = inject(ProjectHover).hovered;
   /** Client-only (set after hydration so server and client render the same tree). */
-  private readonly hydrated = signal(false);
+  protected readonly hydrated = signal(false);
   /** Unmounts the 3D layer if the page falls back to static mid-session. */
   protected readonly scene = computed(() => this.hydrated() && this.display.mode() === 'cinema');
 

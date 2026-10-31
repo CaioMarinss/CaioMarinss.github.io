@@ -155,7 +155,7 @@ const FINE_POINTER_QUERY = '(hover: hover) and (pointer: fine)';
       white-space: nowrap;
       color: var(--accent);
       background: rgb(7 4 5 / 0.86);
-      border: 1px solid rgb(92 242 200 / 0.45);
+      border: 1px solid rgb(255 77 94 / 0.45);
       border-radius: 2px;
     }
     .preview {

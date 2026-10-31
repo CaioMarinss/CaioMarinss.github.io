@@ -37,3 +37,17 @@ export function supportsCinema(win: Window): boolean {
   const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
   return gl !== null;
 }
+
+/**
+ * Static layout: shape progress from the chapters' boxes (viewport px) and a reading line.
+ * Equals `i` while chapter `i` is centred on the line and moves linearly between neighbours,
+ * so the background morphs in step with native scrolling. Clamped to 0..CHAPTER_COUNT-1.
+ */
+export function staticProgress(boxes: readonly { top: number; height: number }[], line: number): number {
+  if (!boxes.length) return 0;
+  let p = 0;
+  boxes.forEach((box, i) => {
+    if (box.height > 0 && box.top <= line) p = i + (line - box.top) / box.height - 0.5;
+  });
+  return clamp(p, 0, CHAPTER_COUNT - 1);
+}
