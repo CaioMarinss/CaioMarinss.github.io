@@ -9,7 +9,7 @@ export const CONTENT_EN: SiteContent = {
   },
   nav: {
     intro: 'Home',
-    experience: 'Núclea',
+    experience: 'Experience',
     projects: 'Projects',
     stage: 'Stage',
     contact: 'Contact',
@@ -29,11 +29,11 @@ export const CONTENT_EN: SiteContent = {
       'Junior Developer Analyst at Núclea, promoted from apprentice to junior in six months, and I deliver complete systems for real clients.',
     ],
     photo: {
-      src: '/images/caio-960.webp',
-      srcset: '/images/caio-480.webp 480w, /images/caio-960.webp 960w',
-      sizes: '(max-width: 860px) 60vw, 25vw',
-      width: 960,
-      height: 1280,
+      src: '/images/caio-900.webp',
+      srcset: '/images/caio-480.webp 480w, /images/caio-900.webp 900w',
+      sizes: '(max-width: 860px) 100vw, 44vw',
+      width: 900,
+      height: 1125,
       alt: 'Portrait of Caio Marins',
     },
   },
@@ -52,7 +52,7 @@ export const CONTENT_EN: SiteContent = {
     paragraph:
       'At Núclea, I maintain systems that run every day: XML/SOAP web services, file exchange, APIs and IBM MQ messaging on top of DB2 and AWS.',
     stackLabel: 'Daily stack',
-    stack: ['Java', 'Wicket', 'IBM DB2', 'IBM MQ', 'AWS', 'XML / SOAP', 'GitHub Actions'],
+    stack: ['Java', 'Wicket', 'WebSphere', 'IBM DB2', 'IBM MQ', 'AWS', 'XML / SOAP', 'GitHub Actions'],
   },
   projects: {
     kicker: 'Projects',
@@ -119,8 +119,8 @@ export const CONTENT_EN: SiteContent = {
   stage: {
     kicker: 'Stage',
     title: [
-      { words: [{ text: 'Stories' }] },
-      { words: [{ text: 'worth' }, { text: 'telling', em: true }] },
+      { words: [{ text: 'Beyond' }, { text: 'the' }] },
+      { words: [{ text: 'code', em: true }] },
     ],
     events: [
       {

@@ -140,8 +140,8 @@ const FINE_POINTER_QUERY = '(hover: hover) and (pointer: fine)';
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--mint);
-      box-shadow: 0 0 10px var(--mint);
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
     }
     span {
       position: absolute;
@@ -153,8 +153,8 @@ const FINE_POINTER_QUERY = '(hover: hover) and (pointer: fine)';
       letter-spacing: 0.1em;
       text-transform: uppercase;
       white-space: nowrap;
-      color: var(--mint);
-      background: rgb(2 4 5 / 0.86);
+      color: var(--accent);
+      background: rgb(7 4 5 / 0.86);
       border: 1px solid rgb(92 242 200 / 0.45);
       border-radius: 2px;
     }

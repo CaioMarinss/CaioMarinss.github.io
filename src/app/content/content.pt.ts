@@ -9,7 +9,7 @@ export const CONTENT_PT: SiteContent = {
   },
   nav: {
     intro: 'Início',
-    experience: 'Núclea',
+    experience: 'Experiência',
     projects: 'Projetos',
     stage: 'Palco',
     contact: 'Contato',
@@ -29,11 +29,11 @@ export const CONTENT_PT: SiteContent = {
       'Analista Desenvolvedor Jr. na Núclea, promovido de jovem aprendiz a júnior em seis meses, e entrego sistemas completos para clientes reais.',
     ],
     photo: {
-      src: '/images/caio-960.webp',
-      srcset: '/images/caio-480.webp 480w, /images/caio-960.webp 960w',
-      sizes: '(max-width: 860px) 60vw, 25vw',
-      width: 960,
-      height: 1280,
+      src: '/images/caio-900.webp',
+      srcset: '/images/caio-480.webp 480w, /images/caio-900.webp 900w',
+      sizes: '(max-width: 860px) 100vw, 44vw',
+      width: 900,
+      height: 1125,
       alt: 'Retrato de Caio Marins',
     },
   },
@@ -52,7 +52,7 @@ export const CONTENT_PT: SiteContent = {
     paragraph:
       'Na Núclea, sustento sistemas que rodam todo dia: webservices com XML/SOAP, troca de arquivos, APIs e mensageria com IBM MQ sobre DB2 e AWS.',
     stackLabel: 'Stack do dia a dia',
-    stack: ['Java', 'Wicket', 'IBM DB2', 'IBM MQ', 'AWS', 'XML / SOAP', 'GitHub Actions'],
+    stack: ['Java', 'Wicket', 'WebSphere', 'IBM DB2', 'IBM MQ', 'AWS', 'XML / SOAP', 'GitHub Actions'],
   },
   projects: {
     kicker: 'Projetos',
@@ -119,8 +119,8 @@ export const CONTENT_PT: SiteContent = {
   stage: {
     kicker: 'Palco',
     title: [
-      { words: [{ text: 'Também' }] },
-      { words: [{ text: 'sei' }, { text: 'contar', em: true }] },
+      { words: [{ text: 'Além' }, { text: 'do' }] },
+      { words: [{ text: 'código', em: true }] },
     ],
     events: [
       {

@@ -7,7 +7,7 @@ export const BG_VERTEX = /* glsl */ `
 void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}
 `;
 
-/** Topographic contour lines of fbm noise, tinted mint → violet with the progress. */
+/** Topographic contour lines of fbm noise, tinted red → pink with the progress. */
 export const BG_FRAGMENT = /* glsl */ `
 uniform float uTime,uP; uniform vec2 uRes,uMouse;
 vec2 h(vec2 p){p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));return -1.+2.*fract(sin(p)*43758.5453);}
@@ -23,10 +23,10 @@ void main(){
   float d=abs(fract(bands)-.5)/fwidth(bands);
   float line=1.-min(d,1.);
   float major=step(.82,fract(floor(bands)*.37+.11));
-  vec3 mint=vec3(.36,.95,.78), vio=vec3(.62,.55,1.);
-  vec3 lc=mix(mint,vio,smoothstep(0.,4.,uP));
+  vec3 acc=vec3(1.,.30,.37), acc2=vec3(1.,.62,.80);
+  vec3 lc=mix(acc,acc2,smoothstep(0.,4.,uP));
   float glow=smoothstep(.65,0.,length(uv-vec2(.25,0.)));
-  vec3 col=vec3(.006,.012,.014)+lc*.018*glow;
+  vec3 col=vec3(.027,.016,.020)+lc*.018*glow;
   col+=lc*line*(.035+.05*major)*(.35+glow);
   col*=1.-dot(uv,uv)*.35;
   gl_FragColor=vec4(col,1.);
@@ -50,8 +50,8 @@ void main(){
   gl_Position=projectionMatrix*mv;
   gl_PointSize=uSize*uPR*(.35+rnd*.65)/-mv.z;
   vA=(.35+.65*rnd)*(1.+uLayers*.6);
-  vec3 mint=vec3(.36,.95,.78), vio=vec3(.62,.55,1.), wh=vec3(.92,1.,.97);
-  vC=mix(mix(mint,vio,smoothstep(1.,4.,uP)),wh,step(.93,rnd));
+  vec3 acc=vec3(1.,.30,.37), acc2=vec3(1.,.62,.80), wh=vec3(.92,1.,.97);
+  vC=mix(mix(acc,acc2,smoothstep(1.,4.,uP)),wh,step(.93,rnd));
 }
 `;
 

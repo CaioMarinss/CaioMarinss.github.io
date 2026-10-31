@@ -30,7 +30,7 @@ describe('App', () => {
 
     const first = root.querySelector('a, button');
     expect(first?.classList.contains('skip-link')).toBe(true);
-    expect(first?.getAttribute('href')).toBe('#intro');
+    expect(first?.getAttribute('href')).toBe('/#intro');
     expect(first?.textContent?.trim()).toBe(CONTENT.pt.ui.skipLink);
     expect(root.querySelector('app-header + main.stage')).not.toBeNull();
     expect(root.querySelector('app-cursor')).toBeNull();

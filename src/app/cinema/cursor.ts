@@ -65,7 +65,7 @@ const HIDES_NATIVE = 'has-cursor';
       height: 74px;
       margin: -37px 0 0 -37px;
       background: rgb(92 242 200 / 0.08);
-      border-color: var(--mint);
+      border-color: var(--accent);
     }
   `,
 })

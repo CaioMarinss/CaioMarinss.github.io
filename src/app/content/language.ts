@@ -13,8 +13,12 @@ export class LanguageService {
     this.current.set(lang);
   }
 
+  /**
+   * Path-qualified so links resolve correctly under <base href="/"> (a bare "#id" would point at
+   * the PT home from /en/). Ends in a slash to match the prerendered en/index.html without a redirect.
+   */
   pathFor(lang: Lang, fragment?: ChapterId): string {
-    const base = lang === 'en' ? '/en' : '/';
+    const base = lang === 'en' ? '/en/' : '/';
     return fragment ? `${base}#${fragment}` : base;
   }
 }

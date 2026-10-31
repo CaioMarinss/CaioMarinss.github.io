@@ -1,5 +1,5 @@
 @if (chrome()) {
-  <a class="skip-link" href="#intro">{{ content().ui.skipLink }}</a>
+  <a class="skip-link" [href]="skipHref()">{{ content().ui.skipLink }}</a>
   <app-header />
 }
 <main class="stage">

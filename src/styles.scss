@@ -4,13 +4,13 @@
   color-scheme: dark;
 
   // Palette
-  --bg: #020405;
+  --bg: #070405;
   --text: #f2f5f3;
   --text-muted: rgb(242 245 243 / 0.62);
   --text-soft: #b9c4c0;
   --text-dim: rgb(242 245 243 / 0.5);
-  --mint: #5cf2c8;
-  --violet: #9d8cff;
+  --accent: #ff4d5e; // red
+  --accent-2: #ff9ecb; // pink
   --line: rgb(242 245 243 / 0.14);
 
   // Typography
@@ -52,7 +52,7 @@ html {
 
 body {
   margin: 0;
-  background: #020405;
+  background: #070405;
   color: #f2f5f3;
   font: 300 15px/1.7 'Manrope Variable', system-ui;
   -webkit-font-smoothing: antialiased;
@@ -90,7 +90,7 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--mint);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -122,8 +122,8 @@ main {
   z-index: 1000;
   padding: 0.6rem 1rem;
   background: var(--bg);
-  color: var(--mint);
-  border: 1px solid var(--mint);
+  color: var(--accent);
+  border: 1px solid var(--accent);
   border-radius: 4px;
   text-decoration: none;
   transform: translateY(-200%);
@@ -162,7 +162,7 @@ app-contact-section {
 
   i {
     font-style: italic;
-    color: var(--mint);
+    color: var(--accent);
   }
 }
 
@@ -230,8 +230,8 @@ html.is-cinema:not(.is-resume) {
     // Soft dark halo (page background colour) keeps copy readable where it crosses bright
     // additive particles; invisible over the dark background.
     text-shadow:
-      0 0 3px rgb(2 4 5 / 0.9),
-      0 0 14px rgb(2 4 5 / 0.85);
+      0 0 3px rgb(7 4 5 / 0.9),
+      0 0 14px rgb(7 4 5 / 0.85);
 
     &.active {
       pointer-events: auto;
@@ -251,7 +251,7 @@ html.is-cinema:not(.is-resume) {
       inset: -6px -14px;
       z-index: -1;
       border-radius: 24px;
-      background: rgb(2 4 5 / 0.62);
+      background: rgb(7 4 5 / 0.62);
       filter: blur(14px);
       pointer-events: none;
     }

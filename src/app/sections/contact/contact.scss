@@ -43,8 +43,8 @@
     transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
 
     &:hover {
-      color: var(--mint);
-      border-color: var(--mint);
+      color: var(--accent);
+      border-color: var(--accent);
     }
   }
 }
@@ -86,7 +86,10 @@
   }
 
   @include mobile {
+    // keep the links next to the title instead of stranded at the bottom of the frame
     .links {
+      top: calc(50% + 96px);
+      bottom: auto;
       gap: 18px 22px;
 
       a {

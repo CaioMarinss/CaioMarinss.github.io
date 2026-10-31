@@ -28,7 +28,13 @@ describe('supportsCinema', () => {
 describe('DisplayMode', () => {
   afterEach(() => {
     document.documentElement.classList.remove('is-cinema');
+    document.documentElement.removeAttribute('data-booted');
     vi.restoreAllMocks();
+  });
+
+  it('marks the document as booted for the inline safety net', () => {
+    TestBed.inject(DisplayMode);
+    expect(document.documentElement.hasAttribute('data-booted')).toBe(true);
   });
 
   it('is static without the class', () => {

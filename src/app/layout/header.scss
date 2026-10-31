@@ -15,7 +15,7 @@
   height: var(--header-h);
   padding-inline: var(--pad);
   // Static mode: content scrolls underneath, so the bar needs its own ground.
-  background: rgb(2 4 5 / 0.86);
+  background: rgb(7 4 5 / 0.86);
   backdrop-filter: blur(12px);
 
   :host-context(.is-cinema) & {
@@ -37,7 +37,7 @@
     font: italic 400 18px/1 var(--font-serif);
     letter-spacing: 0;
     text-transform: none;
-    color: var(--mint);
+    color: var(--accent);
   }
 }
 
@@ -68,7 +68,7 @@
       height: 5px;
       margin-right: 8px;
       border-radius: 50%;
-      background: var(--mint);
+      background: var(--accent);
     }
   }
 }
@@ -112,7 +112,7 @@
 
   &:hover {
     transform: scale(1.04);
-    background: var(--mint);
+    background: var(--accent);
   }
 
   i {
@@ -160,7 +160,7 @@
   i {
     display: block;
     width: 100%;
-    background: var(--mint);
+    background: var(--accent);
   }
 
   @for $n from 0 through 4 {

@@ -11,8 +11,8 @@ describe('LanguageService', () => {
   it('builds paths for pt and en, with and without fragment', () => {
     expect(service.pathFor('pt')).toBe('/');
     expect(service.pathFor('pt', 'projects')).toBe('/#projects');
-    expect(service.pathFor('en')).toBe('/en');
-    expect(service.pathFor('en', 'projects')).toBe('/en#projects');
+    expect(service.pathFor('en')).toBe('/en/');
+    expect(service.pathFor('en', 'projects')).toBe('/en/#projects');
   });
 
   it('switches content with the language', () => {

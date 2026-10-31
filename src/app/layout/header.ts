@@ -23,6 +23,9 @@ export class Header {
   protected readonly active = this.director.activeChapter;
 
   protected readonly otherLang = computed<Lang>(() => (this.lang() === 'pt' ? 'en' : 'pt'));
+  /** Chapter links carry the language path so they keep working without JS or in a new tab. */
+  protected readonly chapterHrefs = computed(() => CHAPTER_IDS.map((id) => this.language.pathFor(this.lang(), id)));
+
   /** Real link to the other language that lands on the chapter being read. */
   protected readonly langHref = computed(() => {
     const index = this.active();

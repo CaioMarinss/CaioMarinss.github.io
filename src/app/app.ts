@@ -31,7 +31,10 @@ export class App {
    * URL so server and client render the same tree before the first navigation settles.
    */
   protected readonly chrome = signal(!BARE_PATHS.test(inject(Location).path()));
-  protected readonly content = inject(LanguageService).content;
+  private readonly language = inject(LanguageService);
+  protected readonly content = this.language.content;
+  /** Path-qualified (see LanguageService.pathFor) so the skip link stays on /en/. */
+  protected readonly skipHref = computed(() => this.language.pathFor(this.language.lang(), 'intro'));
   private readonly display = inject(DisplayMode);
   /** Client-only: set after hydration so server and client render the same tree. */
   private readonly finePointer = signal(false);

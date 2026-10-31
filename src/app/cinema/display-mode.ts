@@ -13,6 +13,11 @@ export class DisplayMode {
 
   readonly mode = this.state.asReadonly();
 
+  constructor() {
+    // Tells the inline safety net in index.html that the app took over the display mode.
+    if (this.browser) this.doc.documentElement.setAttribute('data-booted', '');
+  }
+
   fallbackToStatic(reason: string): void {
     if (this.browser) this.doc.documentElement.classList.remove('is-cinema');
     console.warn(reason);

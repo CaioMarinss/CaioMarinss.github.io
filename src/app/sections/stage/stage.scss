@@ -77,6 +77,16 @@
       right: 0;
       grid-template-columns: 1fr;
       gap: 20px;
+      transition:
+        background-color 0.6s var(--ease),
+        box-shadow 0.6s var(--ease);
+    }
+
+    // The particle ring crosses the events on a narrow screen. Only on the active chapter:
+    // inactive chapters share the stage and would be dimmed by the panel.
+    .stage.active .events {
+      background: rgb(7 4 5 / 0.72);
+      box-shadow: 0 0 36px 28px rgb(7 4 5 / 0.72);
     }
   }
 }

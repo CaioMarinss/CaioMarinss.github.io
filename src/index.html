@@ -7,13 +7,20 @@
       var d = document, c = d.createElement('canvas');
       if (!/^\/(curriculo|en\/resume)\/?$/.test(location.pathname) && !matchMedia('(prefers-reduced-motion: reduce)').matches && (c.getContext('webgl2') || c.getContext('webgl'))) {
         d.documentElement.classList.add('is-cinema');
+        // Safety net: cinema CSS hides copy until the app runs. If the bundle never boots
+        // (network error, blocker, bootstrap crash), drop back to the static layout.
+        addEventListener('load', function () {
+          setTimeout(function () {
+            if (!d.documentElement.hasAttribute('data-booted')) d.documentElement.classList.remove('is-cinema');
+          }, 2000);
+        });
       }
     } catch (e) {}
   </script>
   <title>Caio Marins</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#020405">
+  <meta name="theme-color" content="#070405">
   <meta name="color-scheme" content="dark">
   <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">

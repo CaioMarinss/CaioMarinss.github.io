@@ -24,7 +24,7 @@ describe('Header', () => {
 
   it('keeps the active chapter in the language switch (pt → en)', async () => {
     const { root } = await renderHeader('pt', 2);
-    expect(root.querySelector('a.lang')?.getAttribute('href')).toBe('/en#projects');
+    expect(root.querySelector('a.lang')?.getAttribute('href')).toBe('/en/#projects');
   });
 
   it('points back to portuguese from english', async () => {
@@ -34,7 +34,19 @@ describe('Header', () => {
 
   it('links to the bare language root on the first chapter', async () => {
     const { root } = await renderHeader('pt', 0);
-    expect(root.querySelector('a.lang')?.getAttribute('href')).toBe('/en');
+    expect(root.querySelector('a.lang')?.getAttribute('href')).toBe('/en/');
+  });
+
+  it('qualifies chapter links with the language path so /en/ never falls back to pt', async () => {
+    const { root } = await renderHeader('en', 0);
+    expect(root.querySelector('a.brand')?.getAttribute('href')).toBe('/en/#intro');
+    expect([...root.querySelectorAll('nav a')].map((a) => a.getAttribute('href'))).toEqual([
+      '/en/#intro',
+      '/en/#experience',
+      '/en/#projects',
+      '/en/#stage',
+      '/en/#contact',
+    ]);
   });
 
   it('marks only the active chapter with aria-current', async () => {
@@ -42,12 +54,12 @@ describe('Header', () => {
     const current = root.querySelectorAll('nav a[aria-current]');
     expect(current.length).toBe(1);
     expect(current[0].getAttribute('aria-current')).toBe('true');
-    expect(current[0].getAttribute('href')).toBe('#projects');
+    expect(current[0].getAttribute('href')).toBe('/#projects');
     expect(current[0].textContent?.trim()).toBe(CONTENT.pt.nav.projects);
 
     director.activeChapter.set(3);
     await fixture.whenStable();
-    expect(root.querySelector('nav a[aria-current="true"]')?.getAttribute('href')).toBe('#stage');
+    expect(root.querySelector('nav a[aria-current="true"]')?.getAttribute('href')).toBe('/#stage');
   });
 
   it('hides the decorative progress bar from assistive tech', async () => {
@@ -67,7 +79,7 @@ describe('Header', () => {
   it('routes menu clicks through the director in cinema mode', async () => {
     document.documentElement.classList.add('is-cinema');
     const { root, director } = await renderHeader('pt', 0);
-    const link = root.querySelector<HTMLAnchorElement>('nav a[href="#stage"]')!;
+    const link = root.querySelector<HTMLAnchorElement>('nav a[href="/#stage"]')!;
     const event = new MouseEvent('click', { bubbles: true, cancelable: true });
     link.dispatchEvent(event);
     expect(director.goTo).toHaveBeenCalledWith(3);
@@ -77,7 +89,7 @@ describe('Header', () => {
   it('lets the browser handle modified and middle clicks in cinema mode', async () => {
     document.documentElement.classList.add('is-cinema');
     const { root, director } = await renderHeader('pt', 0);
-    const link = root.querySelector<HTMLAnchorElement>('nav a[href="#stage"]')!;
+    const link = root.querySelector<HTMLAnchorElement>('nav a[href="/#stage"]')!;
     link.addEventListener('click', (e) => e.preventDefault()); // keep jsdom from navigating
     const inits: MouseEventInit[] = [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }];
     for (const init of inits) {
@@ -88,7 +100,7 @@ describe('Header', () => {
 
   it('leaves menu clicks to the native anchor jump in static mode', async () => {
     const { root, director } = await renderHeader('pt', 0);
-    const link = root.querySelector<HTMLAnchorElement>('nav a[href="#stage"]')!;
+    const link = root.querySelector<HTMLAnchorElement>('nav a[href="/#stage"]')!;
     const event = new MouseEvent('click', { bubbles: true, cancelable: true });
     link.addEventListener('click', (e) => e.preventDefault()); // keep jsdom from navigating
     link.dispatchEvent(event);

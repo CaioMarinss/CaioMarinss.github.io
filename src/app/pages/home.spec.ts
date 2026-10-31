@@ -25,6 +25,6 @@ describe('Home', () => {
       providers: [{ provide: ActivatedRoute, useValue: { snapshot: { data: { lang: 'pt' }, fragment: 'projects' } } }],
     });
     const fragment = TestBed.inject(ActivatedRoute).snapshot.fragment as ChapterId;
-    expect(TestBed.inject(LanguageService).pathFor('en', fragment)).toBe('/en#projects');
+    expect(TestBed.inject(LanguageService).pathFor('en', fragment)).toBe('/en/#projects');
   });
 });
