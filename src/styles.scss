@@ -196,6 +196,57 @@ h2.title {
   color: var(--text-muted);
 }
 
+// ---- Modo estático (celular, tablet, menos movimento, sem WebGL) ----
+// Rolagem nativa e só CSS: um brilho sutil da paleta no fundo e as seções surgindo ao rolar.
+html:not(.is-cinema):not(.is-resume) {
+  body {
+    background:
+      radial-gradient(70% 38rem at 100% 0%, rgb(255 77 94 / 0.16), transparent 70%),
+      radial-gradient(60% 30rem at 0% 42%, rgb(255 158 203 / 0.07), transparent 70%),
+      radial-gradient(70% 30rem at 100% 88%, rgb(255 77 94 / 0.08), transparent 70%),
+      var(--bg);
+  }
+
+  @include mobile {
+    .ch {
+      min-height: 0;
+      padding-block: 3.5rem;
+    }
+
+    // a abertura ocupa a primeira tela, com o nome grande perto da base
+    .ch.intro {
+      min-height: calc(100svh - var(--header-h));
+      padding-block: 2rem 3rem;
+      align-content: end;
+    }
+
+    .title {
+      font-size: clamp(4rem, 19vw, 6rem);
+    }
+
+    h2.title {
+      font-size: clamp(2.75rem, 12.5vw, 3.75rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .ch:not(.intro) > * {
+        animation: reveal linear both;
+        animation-timeline: view();
+        animation-range: entry 5% entry 45%;
+      }
+    }
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
 // ---- Modo cinema: palco fixo dirigido pela rolagem (classe posta no <head> antes da 1ª pintura) ----
 // Posições por capítulo ficam no SCSS de cada seção, sob :host-context(.is-cinema).
 html.is-cinema:not(.is-resume) {

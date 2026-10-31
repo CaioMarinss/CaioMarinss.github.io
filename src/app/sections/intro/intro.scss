@@ -1,40 +1,20 @@
 @use 'mixins' as *;
 
+// Opening: name-first layout (no portrait). Kicker on top, the name low and large,
+// two short columns of copy underneath.
 .intro {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
   grid-template-areas:
-    'photo kicker'
-    'photo title'
-    'photo cols';
+    'kicker'
+    'title'
+    'cols';
   grid-template-rows: auto 1fr auto;
-  column-gap: clamp(1.5rem, 4vw, 4rem);
   align-content: stretch;
 
   @include mobile {
-    grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
-    grid-template-areas:
-      'photo kicker'
-      'title title'
-      'cols cols';
     grid-template-rows: auto auto auto;
-    row-gap: 1.75rem;
+    row-gap: 1.5rem;
     align-items: start;
-  }
-}
-
-.photo {
-  grid-area: photo;
-  margin: 0;
-  align-self: start;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 30%;
   }
 }
 
@@ -72,56 +52,17 @@ app-title-words {
   justify-self: end;
   align-self: start;
   color: var(--text-muted);
-  // oculto no modo estático; styles.scss o exibe sob html.is-cinema
+  // oculto no modo estático; o modo cinema o exibe abaixo
   display: none;
 }
 
-// ---- Cinema: frameless portrait on the left, dissolving into the background ----
-// The photo fills the frame height and the copy starts over its fading right edge, so the
-// name reads as part of the portrait instead of a caption beside a boxed picture.
-// --photo-w: photo width (4:5, capped by the frame height and the viewport width).
+// ---- Cinema (desktop only): copy on the left, particle sphere on the right ----
 :host-context(.is-cinema) {
   .intro {
-    --photo-w: min(44vw, calc((100svh - 150px) * 0.8));
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 34px 0 20px calc(var(--photo-w) * 0.7);
-  }
-
-  .photo {
-    position: absolute;
-    bottom: 0;
-    left: calc(var(--pad) * -0.5);
-    width: var(--photo-w);
-    clip-path: inset(100% 0 0 0);
-    // Feather every edge so the picture has no visible frame against the background.
-    mask-image:
-      linear-gradient(to bottom, transparent 0, #000 16%, #000 78%, transparent 100%),
-      linear-gradient(to right, transparent 0, #000 14%, #000 80%, transparent 100%);
-    mask-composite: intersect;
-    transition: clip-path 1.8s cubic-bezier(0.16, 1, 0.3, 1);
-
-    img {
-      transform: scale(1.18);
-      transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-  }
-
-  .intro.active .photo {
-    clip-path: inset(0);
-
-    img {
-      transform: none;
-    }
-  }
-
-  // Copy above the portrait (the photo is positioned, so it would otherwise paint over it).
-  .kicker,
-  app-title-words,
-  .cols {
-    position: relative;
-    z-index: 1;
+    padding: 34px 0 20px;
   }
 
   app-title-words {
@@ -151,40 +92,6 @@ app-title-words {
       height: 38px;
       background: linear-gradient(var(--accent), transparent);
       animation: drip 2s infinite;
-    }
-  }
-
-  // Mobile: the portrait becomes a full-width hero at the top; the copy rises over its fade.
-  @include mobile {
-    .intro {
-      --photo-w: calc(100% + 2 * var(--pad));
-      justify-content: flex-end;
-      padding: 0 0 56px;
-    }
-
-    .photo {
-      top: 0;
-      bottom: auto;
-      left: calc(var(--pad) * -1);
-      max-height: 68%;
-    }
-
-    .kicker {
-      margin-bottom: 0.75rem;
-    }
-
-    app-title-words {
-      margin: 0;
-    }
-
-    .cols {
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .scroll {
-      right: 0;
-      bottom: 16px;
     }
   }
 }

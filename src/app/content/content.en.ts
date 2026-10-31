@@ -28,14 +28,6 @@ export const CONTENT_EN: SiteContent = {
       'I connect systems, from the Angular front end to IBM MQ queues and DB2.',
       'Junior Developer Analyst at Núclea, promoted from apprentice to junior in six months, and I deliver complete systems for real clients.',
     ],
-    photo: {
-      src: '/images/caio-900.webp',
-      srcset: '/images/caio-480.webp 480w, /images/caio-900.webp 900w',
-      sizes: '(max-width: 860px) 100vw, 44vw',
-      width: 900,
-      height: 1125,
-      alt: 'Portrait of Caio Marins',
-    },
   },
   experience: {
     kicker: 'Experience',

@@ -39,14 +39,10 @@ describe('sections (static mode)', () => {
     expect(root.querySelector('#projects h2')?.textContent?.replace(/\s+/g, ' ').trim()).toBe('From front to database');
   });
 
-  it('gives the portrait explicit size, srcset and high priority', async () => {
-    const img = (await renderHome()).querySelector<HTMLImageElement>('#intro img');
-    const photo = CONTENT.pt.intro.photo;
-    expect(img?.getAttribute('width')).toBe(String(photo.width));
-    expect(img?.getAttribute('height')).toBe(String(photo.height));
-    expect(img?.getAttribute('srcset')).toBe(photo.srcset);
-    expect(img?.getAttribute('fetchpriority')).toBe('high');
-    expect(img?.getAttribute('alt')).toBe(photo.alt);
+  it('opens with the name and no portrait', async () => {
+    const root = await renderHome();
+    expect(root.querySelector('#intro img')).toBeNull();
+    expect(root.querySelector('#intro h1')?.textContent).toContain('Caio');
   });
 
   it('shows no screenshot for Almeida and the award for Climb', async () => {

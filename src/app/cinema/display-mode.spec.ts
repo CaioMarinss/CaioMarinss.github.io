@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DisplayMode } from './display-mode';
-import { supportsCinema } from './chapter-math';
+import { readFileSync } from 'node:fs';
+import { CINEMA_SCREEN, supportsCinema } from './chapter-math';
 
-function fakeWin(reduced: boolean, ctx: unknown): Window {
+function fakeWin(reduced: boolean, ctx: unknown, desktop = true): Window {
   const win = {
-    matchMedia: (q: string) => ({ matches: reduced && q.includes('reduce') }),
+    matchMedia: (q: string) => ({ matches: q.includes('reduce') ? reduced : desktop }),
     document: {
       createElement: () => ({ getContext: () => ctx }),
     },
@@ -22,6 +23,13 @@ describe('supportsCinema', () => {
   });
   it('is true with a context', () => {
     expect(supportsCinema(fakeWin(false, {}))).toBe(true);
+  });
+  it('uses the same screen query as the inline detection script in index.html', () => {
+    const html = readFileSync('src/index.html', 'utf8');
+    expect(html).toContain(`matchMedia('${CINEMA_SCREEN}')`);
+  });
+  it('is false on touch or narrow screens', () => {
+    expect(supportsCinema(fakeWin(false, {}, false))).toBe(false);
   });
 });
 

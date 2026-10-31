@@ -103,7 +103,7 @@ app-title-words {
   ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 1.5rem;
+    gap: 0.5rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -111,10 +111,11 @@ app-title-words {
     color: var(--text);
   }
 
-  li:not(:last-child)::after {
-    content: '·';
-    margin-left: 1.5rem;
-    color: var(--text-muted);
+  // static layout: one chip per technology (wraps cleanly on narrow screens)
+  li {
+    padding: 0.1rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
   }
 }
 
@@ -180,8 +181,10 @@ app-title-words {
       gap: 0;
     }
 
-    li::after {
-      display: none;
+    li {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
     }
   }
 

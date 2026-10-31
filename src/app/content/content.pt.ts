@@ -28,14 +28,6 @@ export const CONTENT_PT: SiteContent = {
       'Conecto sistemas: do front em Angular às filas IBM MQ e ao DB2.',
       'Analista Desenvolvedor Jr. na Núclea, promovido de jovem aprendiz a júnior em seis meses, e entrego sistemas completos para clientes reais.',
     ],
-    photo: {
-      src: '/images/caio-900.webp',
-      srcset: '/images/caio-480.webp 480w, /images/caio-900.webp 900w',
-      sizes: '(max-width: 860px) 100vw, 44vw',
-      width: 900,
-      height: 1125,
-      alt: 'Retrato de Caio Marins',
-    },
   },
   experience: {
     kicker: 'Experiência',

@@ -36,15 +36,6 @@ export interface ProjectItem {
   readonly preview?: ProjectPreview;
 }
 
-export interface Photo {
-  readonly src: string;
-  readonly srcset: string;
-  readonly sizes: string;
-  readonly width: number;
-  readonly height: number;
-  readonly alt: string;
-}
-
 export interface TimelineEntry {
   readonly period: string;
   readonly title: string;
@@ -74,7 +65,6 @@ export interface SiteContent {
     readonly kicker: string;
     readonly title: readonly TitleLine[];
     readonly paragraphs: readonly string[];
-    readonly photo: Photo;
   };
   readonly experience: {
     readonly kicker: string;

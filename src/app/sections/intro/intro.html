@@ -1,17 +1,5 @@
 @let c = content();
 <section id="intro" class="ch intro" data-chapter="0" tabindex="-1" [attr.aria-label]="c.nav.intro">
-  <figure class="photo">
-    <img
-      [src]="c.intro.photo.src"
-      [attr.srcset]="c.intro.photo.srcset"
-      [attr.sizes]="c.intro.photo.sizes"
-      [attr.width]="c.intro.photo.width"
-      [attr.height]="c.intro.photo.height"
-      [alt]="c.intro.photo.alt"
-      fetchpriority="high"
-      decoding="async"
-    />
-  </figure>
   <p class="kicker fade">{{ c.intro.kicker }}</p>
   <app-title-words [lines]="c.intro.title" [level]="1" />
   <div class="cols">

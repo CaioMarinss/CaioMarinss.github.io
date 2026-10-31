@@ -1,5 +1,5 @@
 // Requer o Chromium do Playwright (OG e ícones): npx playwright install chromium
-// Gera as imagens de public/images a partir das fontes. Uso: node scripts/build-images.mjs [foto.jpeg]
+// Gera a imagem de compartilhamento (OG), o favicon e o apple-touch-icon. Uso: node scripts/build-images.mjs [foto.jpeg]
 import { mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,8 +31,11 @@ const mask = (w, h) =>
       '<rect width="1" height="1.25" fill="url(#side)" mask="url(#m)"/></svg>',
   );
 
+// O site não exibe mais a foto; ela só compõe a imagem de compartilhamento (OG).
 await mkdir(out, { recursive: true });
-for (const width of [480, 900]) {
+let portrait;
+{
+  const width = 900;
   const height = (width / 4) * 5;
   const rgb = await sharp(photo)
     .extract(crop)
@@ -50,10 +53,7 @@ for (const width of [480, 900]) {
     px[i * 3 + 1] = rgb[i * 3 + 1] * a + BG.g * (1 - a);
     px[i * 3 + 2] = rgb[i * 3 + 2] * a + BG.b * (1 - a);
   }
-  const info = await sharp(px, { raw: { width, height, channels: 3 } })
-    .webp({ quality: 80 })
-    .toFile(resolve(out, `caio-${width}.webp`));
-  console.log(`caio-${width}.webp ${info.width}x${info.height} ${info.size}B`);
+  portrait = await sharp(px, { raw: { width, height, channels: 3 } }).webp({ quality: 85 }).toBuffer();
 }
 
 // OG, favicon e apple-touch-icon: HTML renderizado no Chromium (Playwright) para
@@ -62,7 +62,7 @@ const { chromium } = await import('playwright');
 const { readFile } = await import('node:fs/promises');
 const font = resolve(root, 'node_modules/@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2');
 const fontCss = `@font-face{font-family:IS;src:url(data:font/woff2;base64,${(await readFile(font)).toString('base64')}) format('woff2')}`;
-const photoUrl = 'data:image/webp;base64,' + (await sharp(resolve(out, 'caio-900.webp')).toBuffer()).toString('base64');
+const photoUrl = 'data:image/webp;base64,' + portrait.toString('base64');
 const ogHtml = `<style>${fontCss}*{margin:0;box-sizing:border-box}
 body{width:1200px;height:630px;background:#070405;position:relative;overflow:hidden;color:#f5eff0;font-family:IS}
 .glow{position:absolute;right:-120px;top:-80px;width:760px;height:760px;background:radial-gradient(closest-side,rgba(255,77,94,.22),transparent)}

@@ -34,7 +34,7 @@ src/styles/_mixins.scss  breakpoint mobile (860px), container, rótulo mono
 scripts/                 geração de imagens, capturas e PDFs
 ```
 
-Sem WebGL, com `prefers-reduced-motion: reduce` ou se a cena 3D falhar, o site cai no modo estático (rolagem normal).
+O modo cinema roda só no desktop (tela > 860px com mouse). Celulares e tablets, `prefers-reduced-motion: reduce`, ausência de WebGL ou falha da cena 3D usam o modo estático (rolagem normal, sem baixar o Three.js).
 Fontes auto-hospedadas via @fontsource (Instrument Serif, Manrope, JetBrains Mono); nenhuma chamada a Google Fonts.
 
 ## Regerar imagens e PDFs
@@ -43,7 +43,7 @@ Imagens e PDFs ficam versionados em `public/`, então o CI não precisa de naveg
 
 ```bash
 npx playwright install chromium              # uma vez
-npm run images -- caminho/da/foto.jpeg       # foto, imagem de compartilhamento (OG), favicon
+npm run images -- caminho/da/foto.jpeg       # imagem de compartilhamento (OG, com a foto) e favicon
 npm run shots                                # prévias dos projetos públicos
 npx ng build && npm run cv && npx ng build   # PDFs do currículo (A4, 1 página; falha se passar disso)
 ```
