@@ -27,7 +27,9 @@ const PARTICLES = { desktop: 9000, mobile: 5000, ambient: 3000 } as const;
 const MAX_DPR = { desktop: 2, mobile: 1.5, ambient: 1 } as const;
 const POINT_SIZE = { desktop: 42, mobile: 34, ambient: 30 } as const;
 /** Ambient: a small object near the top of the screen, so the copy below it stays clear. */
-const OBJECT_SCALE = { desktop: 1, mobile: 1, ambient: 0.55 } as const;
+const OBJECT_SCALE = { desktop: 1, mobile: 1, ambient: 0.6 } as const;
+/** Ambient: size on the opening screen, as a fraction of the full size reached by chapter 1. */
+const AMBIENT_SMALL = 0.32;
 /** Spin impulse decay per frame (inertia after a flick) and its cap in rad/s. */
 const SPIN_DAMPING = 0.92;
 const SPIN_MAX = 6;
@@ -41,12 +43,12 @@ const MOBILE_BREAKPOINT = 860;
 const FRAME_X = {
   desktop: [1.55, 1.25, 1.35, -1.6, 0],
   mobile: [0, 0, 0, 0, 0],
-  ambient: [0, 0, 0, 0, 0],
+  ambient: [0.78, 0, 0, 0, 0],
 } as const;
 const FRAME_Y = {
   desktop: [0.05, 0.25, -0.25, 0, 0.15],
   mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
-  ambient: [1.35, 0, 0, 0, 0.1],
+  ambient: [1.28, 0, 0, 0, 0.1],
 } as const;
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
@@ -213,12 +215,16 @@ export class CinemaScene {
     this.lastTime = time;
     this.spinAngle += this.spin * dt;
     this.spin *= SPIN_DAMPING;
-    if (this.ambient) {
-      // entrance: ease-out cubic from 45% to full size
-      const k = Math.min(time / ENTRANCE_S, 1);
-      this.pivot.scale.setScalar(this.baseScale * (0.45 + 0.55 * (1 - (1 - k) ** 3)));
-    }
     const P = this.p;
+    if (this.ambient) {
+      // Born from nothing (ease-out cubic), small beside the name on the opening screen, then
+      // growing to full size as the reader scrolls into chapter 1.
+      const k = Math.min(time / ENTRANCE_S, 1);
+      const birth = 1 - (1 - k) ** 3;
+      const g = Math.min(Math.max(P, 0), 1);
+      const grow = AMBIENT_SMALL + (1 - AMBIENT_SMALL) * g * g * (3 - 2 * g);
+      this.pivot.scale.setScalar(this.baseScale * birth * grow);
+    }
     const ratio = P / (SHAPE_COUNT - 1);
     this.mx = lerp(this.mx, this.tmx, POINTER_LERP);
     this.my = lerp(this.my, this.tmy, POINTER_LERP);
