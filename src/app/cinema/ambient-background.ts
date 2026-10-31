@@ -18,8 +18,6 @@ export const AMBIENT_START_DELAY = new InjectionToken<number>('AMBIENT_START_DEL
   providedIn: 'root',
   factory: () => 900,
 });
-/** ~30 fps: plenty for a slow background drift and half the battery cost of 60. */
-const FRAME_INTERVAL_MS = 1000 / 30;
 /** Eases the shape morph so a fast flick doesn't snap the object. */
 const PROGRESS_LERP = 0.08;
 /** Reading line at 45% of the viewport height (same idea as the static chapter tracking). */
@@ -143,14 +141,11 @@ export class AmbientBackground {
       let p = target();
       let lastTarget = p;
       let frameId: number | null = null;
-      let last = 0;
       const start = performance.now();
       const frame = (now: number): void => {
         frameId = null;
         if (doc.hidden) return; // resumed by visibilitychange
         schedule();
-        if (now - last < FRAME_INTERVAL_MS) return;
-        last = now;
         const t = target();
         active.nudge((t - lastTarget) * SPIN_GAIN);
         lastTarget = t;

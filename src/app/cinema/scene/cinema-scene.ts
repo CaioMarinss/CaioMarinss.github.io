@@ -24,8 +24,8 @@ export interface ScreenPoint {
 /** Prototype constants. */
 type Profile = 'desktop' | 'mobile' | 'ambient';
 const PARTICLES = { desktop: 9000, mobile: 5000, ambient: 3000 } as const;
-const MAX_DPR = { desktop: 2, mobile: 1.5, ambient: 1.5 } as const;
-const POINT_SIZE = { desktop: 42, mobile: 34, ambient: 38 } as const;
+const MAX_DPR = { desktop: 2, mobile: 1.5, ambient: 1 } as const;
+const POINT_SIZE = { desktop: 42, mobile: 34, ambient: 30 } as const;
 /** Ambient: a small object near the top of the screen, so the copy below it stays clear. */
 const OBJECT_SCALE = { desktop: 1, mobile: 1, ambient: 0.55 } as const;
 /** Spin impulse decay per frame (inertia after a flick) and its cap in rad/s. */
@@ -46,7 +46,7 @@ const FRAME_X = {
 const FRAME_Y = {
   desktop: [0.05, 0.25, -0.25, 0, 0.15],
   mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
-  ambient: [1.35, 1.35, 1.35, 1.3, 1.35],
+  ambient: [1.35, 0, 0, 0, 0.1],
 } as const;
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
@@ -101,7 +101,10 @@ export class CinemaScene {
     this.ambient = opts.ambient ?? false;
     const device: Profile = this.ambient ? 'ambient' : opts.mobile ? 'mobile' : 'desktop';
 
-    this.renderer = new T.WebGLRenderer({ canvas, antialias: !this.ambient });
+    // Ambient: transparent canvas and no topographic layer — that full-screen noise shader is the
+    // main per-pixel cost on phone GPUs; the page's CSS glow shows through instead.
+    this.renderer = new T.WebGLRenderer({ canvas, antialias: !this.ambient, alpha: this.ambient });
+    if (this.ambient) this.renderer.setClearColor(0x000000, 0);
     this.renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, MAX_DPR[device]));
     this.scene = new T.Scene();
     this.camera = new T.PerspectiveCamera(42, 1, 0.1, 100);
@@ -126,7 +129,7 @@ export class CinemaScene {
     const bg = new T.Mesh(this.bgGeometry, this.bgMaterial);
     bg.position.z = -12;
     bg.renderOrder = -1;
-    this.camera.add(bg);
+    if (!this.ambient) this.camera.add(bg);
 
     // Particles: one attribute per target shape, morphed in the vertex shader.
     const { shapes, rnd } = generateShapes(PARTICLES[device], SHAPE_SEED);
