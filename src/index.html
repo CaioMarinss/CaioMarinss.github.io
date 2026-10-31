@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <script>
+    try {
+      var d = document, c = d.createElement('canvas');
+      if (!/^\/(curriculo|en\/resume)\/?$/.test(location.pathname) && !matchMedia('(prefers-reduced-motion: reduce)').matches && (c.getContext('webgl2') || c.getContext('webgl'))) {
+        d.documentElement.classList.add('is-cinema');
+      }
+    } catch (e) {}
+  </script>
+  <title>Caio Marins</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#020405">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Caio Marins",
+    "jobTitle": "Desenvolvedor Full Stack Júnior",
+    "worksFor": { "@type": "Organization", "name": "Núclea" },
+    "url": "https://caiomarinss.github.io/",
+    "sameAs": [
+      "https://www.linkedin.com/in/caio-marins-247633265/",
+      "https://github.com/CaioMarinss"
+    ],
+    "knowsLanguage": ["pt", "en"]
+  }
+  </script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<article class="cv">
+  <header class="cv-head">
+    <h1>Caio Marins</h1>
+    <p class="role">{{ content().resume.role }}</p>
+    <ul class="contacts">
+      @for (link of contacts(); track link.href) {
+        <li><a [href]="link.href">{{ readable(link.href) }}</a></li>
+      }
+    </ul>
+  </header>
+
+  <section aria-labelledby="cv-summary">
+    <h2 id="cv-summary">{{ labels().summary }}</h2>
+    <p>{{ content().resume.summary }}</p>
+  </section>
+
+  <section aria-labelledby="cv-experience">
+    <h2 id="cv-experience">{{ content().experience.kicker }}</h2>
+    <div class="job">
+      <h3>
+        {{ content().experience.company }}
+        <span class="note">({{ content().experience.companyNote }})</span>
+      </h3>
+      <ul class="ladder">
+        @for (step of content().experience.ladder; track step.period) {
+          <li>
+            <span class="period">{{ step.period }}</span>
+            <span>{{ step.role }}</span>
+          </li>
+        }
+      </ul>
+      <p>{{ content().experience.paragraph }}</p>
+      <p class="stack">
+        <strong>{{ content().experience.stackLabel }}:</strong>
+        {{ content().experience.stack.join(' · ') }}
+      </p>
+    </div>
+  </section>
+
+  <section aria-labelledby="cv-projects">
+    <h2 id="cv-projects">{{ content().projects.kicker }}</h2>
+    @for (project of content().projects.items; track project.id) {
+      <div class="project">
+        <h3>
+          {{ project.name }}
+          @if (project.award) {
+            <span class="note">— {{ project.award }}</span>
+          }
+        </h3>
+        <p>{{ project.summary }}</p>
+        <p class="stack">{{ project.tags.join(' · ') }}</p>
+        <ul class="links">
+          @for (link of project.links; track link.href) {
+            <li>
+              <a [href]="link.href">{{ readable(link.href) }}</a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </section>
+
+  <section aria-labelledby="cv-stage">
+    <h2 id="cv-stage">{{ content().stage.kicker }}</h2>
+    <ul class="plain">
+      @for (event of content().stage.events; track event.meta) {
+        <li>
+          <strong>{{ event.title }}</strong> — {{ event.meta }}. {{ event.text }}
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="cv-training">
+    <h2 id="cv-training">{{ labels().training }}</h2>
+    <ul class="plain">
+      @for (item of content().resume.education; track item) {
+        <li>{{ item }}</li>
+      }
+      @for (course of courses(); track course.title) {
+        <li>
+          <span class="period">{{ course.period }}</span>
+          <strong>{{ course.title }}</strong>@if (course.detail) { — {{ course.detail }} }
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="cv-languages">
+    <h2 id="cv-languages">{{ content().resume.languagesLabel }}</h2>
+    <ul class="plain">
+      @for (item of content().resume.languages; track item) {
+        <li>{{ item }}</li>
+      }
+    </ul>
+  </section>
+</article>

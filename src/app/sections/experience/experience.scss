@@ -1,0 +1,223 @@
+@use 'mixins' as *;
+
+.experience {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-areas:
+    'kicker kicker kicker kicker kicker kicker kicker kicker kicker kicker kicker kicker'
+    'title title title title title title title title title title title title'
+    'ladder ladder ladder ladder ladder . desc desc desc desc desc desc'
+    'stack stack stack stack stack stack stack stack stack stack stack stack';
+  column-gap: clamp(1rem, 2.5vw, 2rem);
+  row-gap: clamp(2rem, 5vw, 3.5rem);
+  align-content: center;
+
+  @include mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+}
+
+.kicker {
+  grid-area: kicker;
+}
+
+app-title-words {
+  grid-area: title;
+}
+
+.ladder {
+  grid-area: ladder;
+  align-self: start;
+
+  .company {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-bottom: 1.5rem;
+
+    strong {
+      font: 400 var(--fs-lead) var(--font-sans);
+      font-weight: 500;
+    }
+  }
+
+  ol {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: start;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: grid;
+    gap: 0.4rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--line);
+  }
+
+  li strong {
+    font: 400 clamp(1.5rem, 1rem + 1.8vw, 2.4rem) / 1.1 var(--font-serif);
+  }
+
+  .is-now {
+    border-left-color: var(--mint);
+
+    strong {
+      font-style: italic;
+      color: var(--mint);
+    }
+  }
+
+  @include mobile {
+    ol {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.desc {
+  grid-area: desc;
+  align-self: start;
+}
+
+.stack {
+  grid-area: stack;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+
+  h3 {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    line-height: 1.7;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font: 400 0.8rem / 1.8 var(--font-mono);
+    color: var(--text);
+  }
+
+  li:not(:last-child)::after {
+    content: '·';
+    margin-left: 1.5rem;
+    color: var(--text-muted);
+  }
+}
+
+// ---- Cinema (prototype #c1): title on the left, role ladder low left, text in the third column ----
+:host-context(.is-cinema) {
+  .experience {
+    display: block;
+  }
+
+  .kicker {
+    position: absolute;
+    top: 34px;
+    left: 0;
+  }
+
+  app-title-words {
+    position: absolute;
+    bottom: 200px;
+    left: 0;
+  }
+
+  .ladder {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    // never run into the paragraph, which starts at 2 × col − pad + 12px
+    max-width: calc(var(--col) * 2 - var(--pad) - 24px);
+
+    .company {
+      margin-bottom: 1rem;
+    }
+
+    ol {
+      gap: 1.5rem;
+    }
+
+    li strong {
+      font-size: clamp(26px, 2.6vw, 40px);
+      line-height: 1;
+    }
+  }
+
+  .desc {
+    position: absolute;
+    bottom: 28px;
+    left: calc(var(--col) * 2 - var(--pad) + 12px);
+    width: calc(var(--col) - 40px);
+    max-width: none;
+  }
+
+  .stack {
+    position: absolute;
+    top: 34px;
+    right: 28px;
+    display: block;
+    padding: 0;
+    border: 0;
+    text-align: right;
+
+    ul {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0;
+    }
+
+    li::after {
+      display: none;
+    }
+  }
+
+  // Mobile: real copy is longer than the prototype drafts, so stack in flow from the bottom.
+  @include mobile {
+    .experience {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 1.5rem;
+      padding-bottom: 20px;
+    }
+
+    app-title-words,
+    .desc,
+    .ladder {
+      position: static;
+      width: auto;
+      max-width: none;
+    }
+
+    .ladder {
+      order: 3;
+
+      ol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      li strong {
+        font-size: 24px;
+      }
+    }
+
+    .stack {
+      display: none;
+    }
+  }
+}

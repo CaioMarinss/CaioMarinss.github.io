@@ -1,0 +1,251 @@
+@use 'mixins' as *;
+
+.projects {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-content: center;
+
+  @include desktop {
+    app-title-words {
+      align-self: flex-end;
+      text-align: right;
+    }
+    .kicker {
+      align-self: flex-end;
+    }
+  }
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  gap: 0 1.25rem;
+  align-items: start;
+  padding: 1.6rem 0;
+  border-top: 1px solid var(--line);
+  transition: padding-left var(--dur) var(--ease);
+
+  &:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  &:hover,
+  &:focus-within {
+    padding-left: 0.75rem;
+  }
+
+  @include mobile {
+    grid-template-columns: 2rem minmax(0, 1fr);
+
+    .more {
+      grid-column: 2;
+      margin-top: 0.9rem;
+    }
+  }
+}
+
+.n {
+  font: 400 var(--fs-label) / 2.6 var(--font-mono);
+  color: var(--text-muted);
+}
+
+h3 {
+  font-size: clamp(1.7rem, 1.2rem + 1.6vw, 2.6rem);
+
+  a {
+    text-decoration: none;
+    transition: color var(--dur) var(--ease);
+
+    // the whole row is clickable through the project name
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+    }
+  }
+}
+
+.go {
+  color: var(--text-muted);
+  display: inline-block;
+  transition: transform var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.row:hover h3 a,
+.row:hover .go,
+h3 a:focus-visible .go {
+  color: var(--mint);
+}
+
+.row:hover .go {
+  transform: translate(3px, -3px);
+}
+
+.award {
+  @include label;
+  display: inline-block;
+  margin-left: 0.9rem;
+  vertical-align: middle;
+  color: var(--violet);
+  font-size: 0.68rem;
+}
+
+.summary {
+  margin-top: 0.6rem;
+  max-width: 44rem;
+  color: var(--text-muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin-top: 0.7rem;
+  font: 400 0.78rem / 1.7 var(--font-mono);
+  color: var(--text-muted);
+}
+
+.status {
+  color: var(--mint);
+
+  &::before {
+    content: '● ';
+  }
+}
+
+.more {
+  position: relative; // above the stretched link
+  z-index: 1;
+  display: flex;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0.55rem 0 0;
+  list-style: none;
+  font: 400 var(--fs-label) / 1.6 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  a {
+    color: var(--text-muted);
+    text-underline-offset: 0.3em;
+    transition: color var(--dur) var(--ease);
+
+    &:hover {
+      color: var(--text);
+    }
+  }
+}
+
+// ---- Cinema (prototype #c2): title top right, compact list low left ----
+:host-context(.is-cinema) {
+  .projects {
+    display: block;
+  }
+
+  .kicker {
+    position: absolute;
+    top: 34px;
+    right: 28px;
+  }
+
+  app-title-words {
+    position: absolute;
+    top: 70px;
+    right: 28px;
+    text-align: right;
+  }
+
+  .list {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    width: calc(var(--col) * 2 - var(--pad));
+  }
+
+  .row {
+    padding-block: 16px;
+  }
+
+  h3 {
+    font-size: 34px;
+  }
+
+  .summary {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .tags {
+    margin-top: 4px;
+    font-size: 10.5px;
+  }
+
+  // Mobile: title on top, compact list below, both in flow.
+  @include mobile {
+    .projects {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding-top: 34px;
+    }
+
+    .kicker,
+    app-title-words,
+    .list {
+      position: static;
+    }
+
+    .kicker {
+      align-self: flex-end;
+    }
+
+    .list {
+      width: 100%;
+      margin-top: auto;
+    }
+
+    .row {
+      grid-template-columns: 1.6rem minmax(0, 1fr);
+      padding-block: 10px;
+    }
+
+    .n {
+      line-height: 2.2;
+    }
+
+    h3 {
+      font-size: 24px;
+    }
+
+    .award {
+      margin-left: 0.5rem;
+      font-size: 9px;
+    }
+
+    .summary {
+      margin-top: 4px;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .tags {
+      margin-top: 2px;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    .row .more {
+      margin-top: 4px;
+      padding-top: 0;
+      font-size: 10px;
+    }
+  }
+}

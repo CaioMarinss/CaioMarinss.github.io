@@ -1,0 +1,196 @@
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.hdr {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  height: var(--header-h);
+  padding-inline: var(--pad);
+  // Static mode: content scrolls underneath, so the bar needs its own ground.
+  background: rgb(2 4 5 / 0.86);
+  backdrop-filter: blur(12px);
+
+  :host-context(.is-cinema) & {
+    background: none;
+    backdrop-filter: none;
+  }
+}
+
+.brand {
+  flex: none;
+  font: 600 12px/1 var(--font-sans);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+
+  em {
+    margin-left: 6px;
+    font: italic 400 18px/1 var(--font-serif);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--mint);
+  }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    padding-block: 0.5rem;
+    font: 500 10.5px/1 var(--font-sans);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-soft);
+    transition: color 0.3s;
+
+    &:hover,
+    &.on {
+      color: var(--text);
+    }
+
+    &.on::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background: var(--mint);
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 14px;
+}
+
+.lang {
+  padding: 0.5rem 0.25rem;
+  font: 500 11px/1 var(--font-mono);
+  text-decoration: none;
+  color: var(--text-dim);
+  transition: color 0.3s;
+
+  .on {
+    color: var(--text);
+  }
+
+  &:hover {
+    color: var(--text-soft);
+  }
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font: 600 10.5px/1 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 0.3s, background-color 0.3s;
+
+  &:hover {
+    transform: scale(1.04);
+    background: var(--mint);
+  }
+
+  i {
+    width: 6px;
+    height: 6px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+  }
+}
+
+.hline {
+  position: fixed;
+  top: var(--header-h);
+  inset-inline: 0;
+  z-index: 5;
+  height: 1px;
+  background: var(--line);
+  pointer-events: none;
+}
+
+// Decorative chapter progress, cinema only: each dash fills as --p (0..4) passes its chapter.
+.progress {
+  display: none;
+  position: fixed;
+  top: 50%;
+  right: calc(var(--pad) - 18px);
+  z-index: 6;
+  flex-direction: column;
+  gap: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+
+  :host-context(.is-cinema) & {
+    display: flex;
+  }
+
+  span {
+    width: 2px;
+    height: 34px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: rgb(242 245 243 / 0.14);
+  }
+
+  i {
+    display: block;
+    width: 100%;
+    background: var(--mint);
+  }
+
+  @for $n from 0 through 4 {
+    span:nth-child(#{$n + 1}) i {
+      height: calc(clamp(0, var(--p, 0) - #{$n} + 0.5, 1) * 100%);
+    }
+  }
+}
+
+@include mobile {
+  .nav,
+  .hline {
+    display: none;
+  }
+
+  .hdr {
+    gap: 0.75rem;
+  }
+
+  .pill {
+    padding: 10px 14px;
+  }
+
+  .progress {
+    right: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .brand em {
+    display: none;
+  }
+}

@@ -1,0 +1,24 @@
+@let c = content();
+<section id="contact" class="ch contact" data-chapter="4" tabindex="-1" [attr.aria-label]="c.nav.contact">
+  <p class="kicker fade">{{ c.contact.kicker }}</p>
+  <app-title-words [lines]="c.contact.title" />
+  <ul class="facts meta fade">
+    @for (fact of c.contact.facts; track fact) {
+      <li>{{ fact }}</li>
+    }
+  </ul>
+  <ul class="links fade">
+    @for (link of c.contact.links; track link.href) {
+      <li>
+        @if (isExternal(link.href)) {
+          <a [href]="link.href" target="_blank" rel="noopener">{{ link.label }}<span aria-hidden="true"> ↗</span></a>
+        } @else {
+          <a [href]="link.href">{{ link.label }}</a>
+        }
+      </li>
+    }
+    <li>
+      <a [href]="c.ui.resumeHref">{{ c.ui.resume }}<span aria-hidden="true"> ↓</span></a>
+    </li>
+  </ul>
+</section>

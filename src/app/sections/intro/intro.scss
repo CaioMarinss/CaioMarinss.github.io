@@ -1,0 +1,192 @@
+@use 'mixins' as *;
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+  grid-template-areas:
+    'photo kicker'
+    'photo title'
+    'photo cols';
+  grid-template-rows: auto 1fr auto;
+  column-gap: clamp(1.5rem, 4vw, 4rem);
+  align-content: stretch;
+
+  @include mobile {
+    grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+    grid-template-areas:
+      'photo kicker'
+      'title title'
+      'cols cols';
+    grid-template-rows: auto auto auto;
+    row-gap: 1.75rem;
+    align-items: start;
+  }
+}
+
+.photo {
+  grid-area: photo;
+  margin: 0;
+  align-self: start;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #0a0f11;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 18%;
+    filter: saturate(0.88) contrast(1.05);
+  }
+}
+
+.kicker {
+  grid-area: kicker;
+  align-self: start;
+}
+
+app-title-words {
+  grid-area: title;
+  align-self: end;
+  padding-block: 2rem 3rem;
+
+  @include mobile {
+    padding-block: 0;
+  }
+}
+
+.cols {
+  grid-area: cols;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  max-width: 54rem;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.scroll {
+  @include label;
+  grid-area: kicker;
+  justify-self: end;
+  align-self: start;
+  color: var(--text-muted);
+  // oculto no modo estático; styles.scss o exibe sob html.is-cinema
+  display: none;
+}
+
+// ---- Cinema (prototype #c0): photo column on the left, title low, two columns at the foot ----
+// Kicker, title and columns flow in the second column (so longer copy pushes the title up
+// instead of colliding with it); photo and scroll hint are pinned.
+:host-context(.is-cinema) {
+  .intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 34px 0 20px calc(var(--col) - 8px);
+  }
+
+  .photo {
+    position: absolute;
+    top: 28px;
+    left: 0;
+    width: calc(var(--col) - var(--pad) - 8px);
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+
+    img {
+      transform: scale(1.18);
+      transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+
+  .intro.active .photo {
+    clip-path: inset(0);
+
+    img {
+      transform: none;
+    }
+  }
+
+  app-title-words {
+    align-self: flex-start;
+    margin: auto 0 0 -6px;
+    padding: 0 0 clamp(24px, 4vh, 40px);
+  }
+
+  .cols {
+    grid-template-columns: repeat(2, max(220px, calc(var(--col) - 64px)));
+    gap: 56px;
+    max-width: none;
+  }
+
+  .scroll {
+    position: absolute;
+    right: 28px;
+    bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10.5px;
+
+    &::after {
+      content: '';
+      width: 1px;
+      height: 38px;
+      background: linear-gradient(var(--mint), transparent);
+      animation: drip 2s infinite;
+    }
+  }
+
+  @include mobile {
+    .intro {
+      padding: 0 0 60px;
+    }
+
+    .photo {
+      top: 16px;
+      width: 38vw;
+    }
+
+    .kicker {
+      position: absolute;
+      top: 20px;
+      left: calc(38vw + 16px);
+    }
+
+    app-title-words {
+      margin-left: 0;
+    }
+
+    .cols {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .scroll {
+      right: 0;
+      bottom: 16px;
+    }
+  }
+}
+
+@keyframes drip {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  51% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}

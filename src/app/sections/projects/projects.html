@@ -1,0 +1,41 @@
+@let c = content();
+<section id="projects" class="ch projects" data-chapter="2" tabindex="-1" [attr.aria-label]="c.nav.projects">
+  <p class="kicker fade">{{ c.projects.kicker }}</p>
+  <app-title-words [lines]="c.projects.title" />
+  <ol class="list">
+    @for (item of c.projects.items; track item.id; let i = $index) {
+      <li
+        class="row fade"
+        [class.d2]="i === 1"
+        [class.d3]="i === 2"
+        [attr.data-project]="item.id"
+        (mouseenter)="hovered.emit(item.id)"
+        (mouseleave)="hovered.emit(null)"
+        (focusin)="hovered.emit(item.id)"
+        (focusout)="hovered.emit(null)"
+      >
+        <span class="n" aria-hidden="true">{{ '0' + (i + 1) }}</span>
+        <div class="body">
+          <h3>
+            <a [href]="item.links[0].href" target="_blank" rel="noopener">{{ item.name }}<span class="go" aria-hidden="true"> ↗</span></a>
+            @if (item.award) {
+              <span class="award">{{ item.award }}</span>
+            }
+          </h3>
+          <p class="summary">{{ item.summary }}</p>
+          <p class="tags">
+            <span class="status">{{ item.status }}</span>
+            <span class="stack">{{ item.tags.join(' · ') }}</span>
+          </p>
+        </div>
+        <ul class="more">
+          @for (link of item.links.slice(1); track link.href) {
+            <li>
+              <a [href]="link.href" target="_blank" rel="noopener">{{ link.label }}</a>
+            </li>
+          }
+        </ul>
+      </li>
+    }
+  </ol>
+</section>

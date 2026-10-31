@@ -1,0 +1,145 @@
+// Currículo: claro, uma coluna, pensado para A4 (a margem real vem do @page em styles.scss).
+:host {
+  display: block;
+  background: #fff;
+  color: #141817;
+  font: 400 10pt/1.42 var(--font-sans);
+  word-spacing: 0.08em;
+}
+
+.cv {
+  max-width: 190mm;
+  margin: 0 auto;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: #0b0e0d;
+}
+
+h1 {
+  font: 400 28pt/1 var(--font-serif);
+  word-spacing: 0.12em;
+}
+
+.role {
+  margin-top: 2mm;
+  font-size: 11pt;
+  font-weight: 500;
+}
+
+.contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 4mm;
+  margin: 2.5mm 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 9pt;
+}
+
+.cv-head {
+  padding-bottom: 3.5mm;
+  border-bottom: 0.4mm solid #0b0e0d;
+}
+
+section {
+  margin-top: 4.2mm;
+  break-inside: avoid;
+}
+
+h2 {
+  margin-bottom: 1.4mm;
+  padding-bottom: 0.8mm;
+  border-bottom: 0.2mm solid #9aa3a0;
+  font: 700 8.6pt/1.2 var(--font-sans);
+  text-transform: uppercase;
+}
+
+h3 {
+  font: 700 10pt/1.3 var(--font-sans);
+}
+
+.note {
+  font-weight: 400;
+  color: #444c49;
+}
+
+p {
+  margin: 0;
+}
+
+p + p {
+  margin-top: 0.8mm;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ladder {
+  margin: 0.6mm 0 1mm;
+
+}
+
+.period {
+  display: inline-block;
+  min-width: 22mm;
+  color: #444c49;
+  font: 400 8.4pt/1.42 var(--font-mono);
+}
+
+.stack {
+  color: #2a302e;
+  font-size: 9pt;
+}
+
+.project {
+  break-inside: avoid;
+
+  & + & {
+    margin-top: 2.2mm;
+  }
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 4mm;
+  margin-top: 0.4mm;
+  font-size: 8.4pt;
+}
+
+.plain li + li {
+  margin-top: 0.8mm;
+}
+
+a {
+  color: #0b0e0d;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: 2px solid #0a7a5f;
+  outline-offset: 2px;
+}
+
+@media screen {
+  :host {
+    min-height: 100vh;
+    padding: 0 6vw;
+  }
+
+  .cv {
+    padding-block: 10mm 16mm;
+  }
+}

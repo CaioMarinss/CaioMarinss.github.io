@@ -1,0 +1,28 @@
+@let c = content();
+<section id="experience" class="ch experience" data-chapter="1" tabindex="-1" [attr.aria-label]="c.nav.experience">
+  <p class="kicker fade">{{ c.experience.kicker }}</p>
+  <app-title-words [lines]="c.experience.title" />
+  <div class="ladder fade d2">
+    <p class="company">
+      <strong>{{ c.experience.company }}</strong>
+      <span class="meta">{{ c.experience.companyNote }}</span>
+    </p>
+    <ol>
+      @for (step of c.experience.ladder; track step.period) {
+        <li [class.is-now]="step.em">
+          <span class="meta">{{ step.period }}</span>
+          <strong>{{ step.role }}</strong>
+        </li>
+      }
+    </ol>
+  </div>
+  <p class="desc fade">{{ c.experience.paragraph }}</p>
+  <div class="stack fade d3">
+    <h3 class="meta">{{ c.experience.stackLabel }}</h3>
+    <ul>
+      @for (item of c.experience.stack; track item) {
+        <li>{{ item }}</li>
+      }
+    </ul>
+  </div>
+</section>

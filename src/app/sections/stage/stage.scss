@@ -1,0 +1,82 @@
+@use 'mixins' as *;
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-content: center;
+
+  @include desktop {
+    padding-left: 25%;
+  }
+}
+
+.events {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+
+  li {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  h3 {
+    margin: 0.7rem 0;
+    font-size: clamp(1.6rem, 1.2rem + 1vw, 2.1rem);
+  }
+}
+
+// ---- Cinema (prototype #c3): second column, title high, two events low ----
+:host-context(.is-cinema) {
+  .stage {
+    display: block;
+    padding: 0;
+  }
+
+  .kicker {
+    position: absolute;
+    top: 34px;
+    left: calc(var(--col) - 8px);
+  }
+
+  app-title-words {
+    position: absolute;
+    top: 72px;
+    left: calc(var(--col) - 14px);
+  }
+
+  .events {
+    position: absolute;
+    bottom: 28px;
+    left: calc(var(--col) - 8px);
+    grid-template-columns: repeat(2, calc(var(--col) - 40px));
+    gap: 48px;
+
+    h3 {
+      margin: 10px 0;
+      font-size: 30px;
+    }
+  }
+
+  @include mobile {
+    .kicker,
+    app-title-words,
+    .events {
+      left: 0;
+    }
+
+    .events {
+      right: 0;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+}

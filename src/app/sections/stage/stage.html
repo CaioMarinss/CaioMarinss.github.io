@@ -1,0 +1,14 @@
+@let c = content();
+<section id="stage" class="ch stage" data-chapter="3" tabindex="-1" [attr.aria-label]="c.nav.stage">
+  <p class="kicker fade">{{ c.stage.kicker }}</p>
+  <app-title-words [lines]="c.stage.title" />
+  <ol class="events">
+    @for (event of c.stage.events; track event.meta) {
+      <li class="fade" [class.d2]="$index === 1">
+        <span class="meta">{{ event.meta }}</span>
+        <h3>{{ event.title }}</h3>
+        <p class="desc">{{ event.text }}</p>
+      </li>
+    }
+  </ol>
+</section>

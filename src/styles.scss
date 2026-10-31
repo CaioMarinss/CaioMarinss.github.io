@@ -1,0 +1,343 @@
+@use 'mixins' as *;
+
+:root {
+  color-scheme: dark;
+
+  // Palette
+  --bg: #020405;
+  --text: #f2f5f3;
+  --text-muted: rgb(242 245 243 / 0.62);
+  --text-soft: #b9c4c0;
+  --text-dim: rgb(242 245 243 / 0.5);
+  --mint: #5cf2c8;
+  --violet: #9d8cff;
+  --line: rgb(242 245 243 / 0.14);
+
+  // Typography
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Manrope Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --fs-display: clamp(3rem, 1.6rem + 6vw, 7rem);
+  --fs-h2: clamp(2.2rem, 1.4rem + 3.2vw, 4.2rem);
+  --fs-lead: clamp(1.05rem, 1rem + 0.3vw, 1.25rem);
+  --fs-body: 0.9375rem;
+  --fs-label: 0.72rem;
+
+  // Layout
+  --container: 1200px;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --header-h: 72px;
+  --pad: 56px; // cinema frame inset
+  --col: 25vw; // editorial column of the cinema layout
+
+  @include mobile {
+    --pad: 20px;
+    --col: 50vw;
+  }
+
+  // Motion
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 240ms;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: #020405;
+  color: #f2f5f3;
+  font: 300 15px/1.7 'Manrope Variable', system-ui;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+a {
+  color: inherit;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
+}
+
+main:focus,
+.ch:focus {
+  outline: none;
+}
+
+main {
+  padding-top: var(--header-h); // static mode: clear the fixed header
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1000;
+  padding: 0.6rem 1rem;
+  background: var(--bg);
+  color: var(--mint);
+  border: 1px solid var(--mint);
+  border-radius: 4px;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--dur) var(--ease);
+
+  &:focus-visible {
+    transform: none;
+  }
+}
+
+// ---- Capítulos (modo estático; a camada de cinema da Task 6 redefine o posicionamento) ----
+app-intro-section,
+app-experience-section,
+app-projects-section,
+app-stage-section,
+app-contact-section {
+  display: contents;
+}
+
+.ch {
+  @include container;
+  min-height: 80svh;
+  padding-block: clamp(4rem, 9vw, 7rem);
+  scroll-margin-top: var(--header-h);
+}
+
+.kicker {
+  @include label;
+}
+
+.title {
+  font-size: var(--fs-display);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: #f7faf8;
+
+  i {
+    font-style: italic;
+    color: var(--mint);
+  }
+}
+
+h2.title {
+  font-size: var(--fs-h2);
+}
+
+// Máscara de palavra: no modo estático tudo já está visível.
+.w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.w > span {
+  display: inline-block;
+}
+
+.desc {
+  max-width: 34rem;
+  font-size: var(--fs-body);
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+.meta {
+  font: 400 var(--fs-label) / 1.9 var(--font-mono);
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+// ---- Modo cinema: palco fixo dirigido pela rolagem (classe posta no <head> antes da 1ª pintura) ----
+// Posições por capítulo ficam no SCSS de cada seção, sob :host-context(.is-cinema).
+html.is-cinema:not(.is-resume) {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  body {
+    min-height: 620vh;
+    overflow-x: hidden;
+  }
+
+  main.stage {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    padding: 0;
+    pointer-events: none;
+  }
+
+  .ch {
+    position: absolute;
+    inset: var(--header-h) var(--pad) 44px;
+    width: auto;
+    max-width: none;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    // Soft dark halo (page background colour) keeps copy readable where it crosses bright
+    // additive particles; invisible over the dark background.
+    text-shadow:
+      0 0 3px rgb(2 4 5 / 0.9),
+      0 0 14px rgb(2 4 5 / 0.85);
+
+    &.active {
+      pointer-events: auto;
+    }
+  }
+
+  // Body copy also gets a feathered scrim: glyph halos alone can't cover particle cores
+  // between letters. Isolated so the scrim sits behind the text but above the canvas.
+  .desc,
+  .summary {
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -6px -14px;
+      z-index: -1;
+      border-radius: 24px;
+      background: rgb(2 4 5 / 0.62);
+      filter: blur(14px);
+      pointer-events: none;
+    }
+  }
+
+  // The project name's link is stretched over the whole row; let clicks pass through the summary.
+  .summary {
+    pointer-events: none;
+  }
+
+  .title,
+  h2.title {
+    font-size: clamp(64px, 9.2vw, 148px);
+    line-height: 0.9;
+
+    @include mobile {
+      font-size: clamp(54px, 15vw, 90px);
+    }
+  }
+
+  // Palavras sobem da máscara; o atraso por palavra vem inline do TitleWords.
+  .w > span {
+    transform: translateY(105%);
+    transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ch.active .w > span {
+    transform: none;
+  }
+
+  .fade {
+    opacity: 0;
+    transform: translateY(22px);
+    filter: blur(6px);
+    transition:
+      opacity 0.9s cubic-bezier(0.25, 1, 0.5, 1),
+      transform 0.9s cubic-bezier(0.25, 1, 0.5, 1),
+      filter 0.9s;
+    transition-delay: 0.35s;
+  }
+
+  .ch.active .fade {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .ch.active .d2 {
+    transition-delay: 0.5s;
+  }
+
+  .ch.active .d3 {
+    transition-delay: 0.65s;
+  }
+
+  &.has-cursor,
+  &.has-cursor * {
+    cursor: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// ---- Currículo (/curriculo, /en/resume): claro e imprimível; nenhum efeito do modo cinema ----
+@page {
+  size: A4;
+  margin: 14mm;
+}
+
+html.is-resume {
+  color-scheme: light;
+
+  body {
+    min-height: 0;
+    background: #fff;
+    color: #141817;
+  }
+
+  main {
+    padding-top: 0;
+  }
+}

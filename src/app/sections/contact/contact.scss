@@ -1,0 +1,97 @@
+@use 'mixins' as *;
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  text-align: center;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li:not(:last-child)::after {
+    content: '·';
+    margin-left: 1.5rem;
+  }
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem clamp(1.5rem, 4vw, 2.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: inline-block;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--line);
+    font: 400 clamp(1.3rem, 1rem + 1.2vw, 1.9rem) / 1.1 var(--font-serif);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+
+    &:hover {
+      color: var(--mint);
+      border-color: var(--mint);
+    }
+  }
+}
+
+// ---- Cinema (prototype #c4): centred title, links along the foot ----
+:host-context(.is-cinema) {
+  .contact {
+    display: block;
+  }
+
+  .kicker,
+  .facts,
+  app-title-words,
+  .links {
+    position: absolute;
+    inset-inline: 0;
+  }
+
+  .kicker {
+    top: 34px;
+  }
+
+  .facts {
+    top: 62px;
+  }
+
+  app-title-words {
+    top: 50%;
+    transform: translateY(-62%);
+  }
+
+  .links {
+    bottom: 36px;
+    gap: 22px 44px;
+
+    a {
+      font-size: 26px;
+    }
+  }
+
+  @include mobile {
+    .links {
+      gap: 18px 22px;
+
+      a {
+        font-size: 20px;
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+@let c = content();
+<header class="hdr">
+  <a class="brand" href="#intro" (click)="navigate($event, 0)">Caio Marins<em>full stack</em></a>
+  <nav class="nav">
+    @for (id of chapters; track id; let i = $index) {
+      <a
+        [href]="'#' + id"
+        [class.on]="active() === i"
+        [attr.aria-current]="active() === i ? 'true' : null"
+        (click)="navigate($event, i)"
+      >{{ c.nav[id] }}</a>
+    }
+  </nav>
+  <div class="actions">
+    <a class="lang" [href]="langHref()" [attr.hreflang]="otherLang()">
+      <span class="visually-hidden">{{ c.ui.switchLang }}: </span>
+      <span [class.on]="lang() === 'pt'" lang="pt-BR">PT</span>
+      <span aria-hidden="true"> / </span>
+      <span [class.on]="lang() === 'en'" lang="en">EN</span>
+    </a>
+    <a class="pill" [href]="c.ui.resumeHref" download>{{ c.ui.resume }}<i aria-hidden="true"></i></a>
+  </div>
+</header>
+<div class="hline" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true">
+  @for (id of chapters; track id) {
+    <span><i></i></span>
+  }
+</div>
