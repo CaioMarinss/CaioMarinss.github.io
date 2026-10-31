@@ -213,10 +213,12 @@ html:not(.is-cinema):not(.is-resume) {
       padding-block: 3.5rem;
     }
 
-    // abertura: conteúdo no topo; a esfera nasce pequena ao lado do nome e cresce ao rolar
+    // abertura: ocupa a primeira tela e deixa à vista só o rótulo e o título da próxima seção;
+    // a esfera nasce pequena ao lado do nome e cresce ao rolar
     .ch.intro {
-      min-height: 0;
-      padding-block: 2.5rem 3rem;
+      min-height: calc(100svh - var(--header-h) - 10.5rem);
+      padding-block: 1.5rem;
+      align-content: center;
     }
 
     .title {

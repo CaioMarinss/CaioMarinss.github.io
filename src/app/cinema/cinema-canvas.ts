@@ -22,7 +22,7 @@ import { ScrollDirector } from './scroll-director';
 /** What the component needs from the scene (a fake in tests). */
 export type SceneHandle = Pick<
   CinemaScene,
-  'setProgress' | 'setPointer' | 'nudge' | 'setLayerLabels' | 'getLayerAnchors' | 'resize' | 'render' | 'dispose'
+  'setProgress' | 'setPointer' | 'nudge' | 'setAnchor' | 'setLayerLabels' | 'getLayerAnchors' | 'resize' | 'render' | 'dispose'
 >;
 
 /** The only runtime import of `three`: a lazy chunk loaded after the first render. */

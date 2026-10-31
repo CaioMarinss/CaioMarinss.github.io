@@ -22,6 +22,8 @@ export const AMBIENT_START_DELAY = new InjectionToken<number>('AMBIENT_START_DEL
 const PROGRESS_LERP = 0.08;
 /** Reading line at 45% of the viewport height (same idea as the static chapter tracking). */
 const READING_LINE = 0.45;
+/** Opening: the small object sits at this fraction of the viewport width, level with the name. */
+const ANCHOR_X = 0.8;
 /** Canvas opacity: vivid on the opening screen, dimmer behind the reading chapters. */
 const OPACITY_OPENING = 1;
 const OPACITY_READING = 0.65;
@@ -132,6 +134,14 @@ export class AmbientBackground {
       resize();
 
       const chapters = Array.from(doc.querySelectorAll<HTMLElement>('section.ch[data-chapter]'));
+      const name = doc.querySelector<HTMLElement>('#intro h1');
+      // Keeps the opening object beside the name, so it scrolls away with it.
+      const anchor = (): void => {
+        if (!name) return;
+        const r = name.getBoundingClientRect();
+        const y = r.top + r.height / 2;
+        active.setAnchor(ANCHOR_X * 2 - 1, 1 - (y / win.innerHeight) * 2);
+      };
       const target = (): number =>
         staticProgress(
           chapters.map((el) => el.getBoundingClientRect()),
@@ -146,6 +156,7 @@ export class AmbientBackground {
         frameId = null;
         if (doc.hidden) return; // resumed by visibilitychange
         schedule();
+        anchor();
         const t = target();
         active.nudge((t - lastTarget) * SPIN_GAIN);
         lastTarget = t;

@@ -96,6 +96,8 @@ export class CinemaScene {
   private spin = 0;
   private spinAngle = 0;
   private lastTime: number | null = null;
+  /** Ambient: chapter-0 position in normalised device coordinates (-1..1, y up), tracked from the DOM. */
+  private anchor: { x: number; y: number } | null = null;
 
   constructor(canvas: HTMLCanvasElement, opts: CinemaSceneOptions) {
     const T = (this.three = opts.three);
@@ -175,6 +177,11 @@ export class CinemaScene {
     this.tmy = y;
   }
 
+  /** Ambient: pins the opening-chapter object to a screen point (NDC, y up), e.g. beside the name. */
+  setAnchor(x: number, y: number): void {
+    this.anchor = { x, y };
+  }
+
   /** Adds rotational momentum (rad/s), e.g. from scroll velocity; decays with inertia. */
   nudge(velocity: number): void {
     this.spin = Math.min(Math.max(this.spin + velocity, -SPIN_MAX), SPIN_MAX);
@@ -243,12 +250,21 @@ export class CinemaScene {
     const k = Math.min(Math.floor(P), SHAPE_COUNT - 2);
     const f = P - k;
     const e = f * f * (3 - 2 * f);
-    this.pivot.position.x = lerp(FRAME_X[device][k], FRAME_X[device][k + 1], e);
-    this.pivot.position.y = lerp(FRAME_Y[device][k], FRAME_Y[device][k + 1], e);
+    const fx = (i: number): number => (i === 0 && this.anchorWorld() ? this.anchorWorld()!.x : FRAME_X[device][i]);
+    const fy = (i: number): number => (i === 0 && this.anchorWorld() ? this.anchorWorld()!.y : FRAME_Y[device][i]);
+    this.pivot.position.x = lerp(fx(k), fx(k + 1), e);
+    this.pivot.position.y = lerp(fy(k), fy(k + 1), e);
     this.pivot.rotation.y = time * 0.05 + ratio * Math.PI * 1.6 + this.mx * 0.35 + this.spinAngle;
     this.pivot.rotation.x = 0.18 + this.my * 0.18 + Math.sin(ratio * Math.PI) * 0.25;
 
     this.renderer.render(this.scene, this.camera);
+  }
+
+  /** The anchor in world units at the object's depth (z = 0), or null when not set / not ambient. */
+  private anchorWorld(): { x: number; y: number } | null {
+    if (!this.ambient || !this.anchor) return null;
+    const halfH = Math.tan((this.camera.fov * Math.PI) / 360) * this.camera.position.z;
+    return { x: this.anchor.x * halfH * this.camera.aspect, y: this.anchor.y * halfH };
   }
 
   dispose(): void {
