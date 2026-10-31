@@ -10,6 +10,7 @@ function fakeScene(): Mocked<SceneHandle> {
   return {
     setProgress: vi.fn<SceneHandle['setProgress']>(),
     setPointer: vi.fn<SceneHandle['setPointer']>(),
+    nudge: vi.fn<SceneHandle['nudge']>(),
     setLayerLabels: vi.fn<SceneHandle['setLayerLabels']>(),
     getLayerAnchors: vi.fn<SceneHandle['getLayerAnchors']>(() => [
       { x: 10, y: 20 },

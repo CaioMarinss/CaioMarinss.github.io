@@ -25,8 +25,10 @@ const PROGRESS_LERP = 0.08;
 /** Reading line at 45% of the viewport height (same idea as the static chapter tracking). */
 const READING_LINE = 0.45;
 /** Canvas opacity: vivid on the opening screen, dimmer behind the reading chapters. */
-const OPACITY_OPENING = 0.9;
-const OPACITY_READING = 0.4;
+const OPACITY_OPENING = 1;
+const OPACITY_READING = 0.65;
+/** Scroll velocity (chapters per frame) → spin impulse (rad/s): a flick gives the object a turn. */
+const SPIN_GAIN = 40;
 /** Mobile URL bars resize the viewport while scrolling; ignore height changes smaller than this. */
 const RESIZE_SLACK_PX = 140;
 
@@ -56,7 +58,7 @@ const RESIZE_SLACK_PX = 140;
       transition: opacity 1.2s var(--ease);
     }
     canvas.on {
-      opacity: 0.9;
+      opacity: 1;
     }
   `,
 })
@@ -105,10 +107,18 @@ export class AmbientBackground {
       }
       const active = scene;
 
-      const listen = (target: EventTarget, type: string, handler: () => void): void => {
-        target.addEventListener(type, handler, { passive: true });
-        teardown.push(() => target.removeEventListener(type, handler));
+      const listen = <E extends Event>(target: EventTarget, type: string, handler: (e: E) => void): void => {
+        const h = handler as EventListener;
+        target.addEventListener(type, h, { passive: true });
+        teardown.push(() => target.removeEventListener(type, h));
       };
+
+      // Touch: dragging tilts the object (passive — scrolling is never blocked); release eases back.
+      listen<TouchEvent>(doc, 'touchmove', (e) => {
+        const t = e.touches[0];
+        if (t) active.setPointer((t.clientX / win.innerWidth) * 2 - 1, (t.clientY / win.innerHeight) * 2 - 1);
+      });
+      listen(doc, 'touchend', () => active.setPointer(0, 0));
 
       let width = 0;
       let height = 0;
@@ -131,6 +141,7 @@ export class AmbientBackground {
         );
 
       let p = target();
+      let lastTarget = p;
       let frameId: number | null = null;
       let last = 0;
       const start = performance.now();
@@ -141,6 +152,8 @@ export class AmbientBackground {
         if (now - last < FRAME_INTERVAL_MS) return;
         last = now;
         const t = target();
+        active.nudge((t - lastTarget) * SPIN_GAIN);
+        lastTarget = t;
         p += (t - p) * PROGRESS_LERP;
         active.setProgress(p);
         active.render((now - start) / 1000);

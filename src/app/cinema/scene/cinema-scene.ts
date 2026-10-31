@@ -23,11 +23,16 @@ export interface ScreenPoint {
 
 /** Prototype constants. */
 type Profile = 'desktop' | 'mobile' | 'ambient';
-const PARTICLES = { desktop: 9000, mobile: 5000, ambient: 2500 } as const;
-const MAX_DPR = { desktop: 2, mobile: 1.5, ambient: 1 } as const;
-const POINT_SIZE = { desktop: 42, mobile: 34, ambient: 30 } as const;
+const PARTICLES = { desktop: 9000, mobile: 5000, ambient: 3000 } as const;
+const MAX_DPR = { desktop: 2, mobile: 1.5, ambient: 1.5 } as const;
+const POINT_SIZE = { desktop: 42, mobile: 34, ambient: 38 } as const;
 /** Ambient: a small object near the top of the screen, so the copy below it stays clear. */
 const OBJECT_SCALE = { desktop: 1, mobile: 1, ambient: 0.55 } as const;
+/** Spin impulse decay per frame (inertia after a flick) and its cap in rad/s. */
+const SPIN_DAMPING = 0.92;
+const SPIN_MAX = 6;
+/** Ambient entrance: the cloud gathers and grows over this many seconds. */
+const ENTRANCE_S = 1.6;
 const SHAPE_SEED = 20251031;
 const POINTER_LERP = 0.05;
 const LAYERS_LERP = 0.08;
@@ -41,7 +46,7 @@ const FRAME_X = {
 const FRAME_Y = {
   desktop: [0.05, 0.25, -0.25, 0, 0.15],
   mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
-  ambient: [1.45, 1.45, 1.45, 1.4, 1.45],
+  ambient: [1.35, 1.35, 1.35, 1.3, 1.35],
 } as const;
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
@@ -85,6 +90,10 @@ export class CinemaScene {
   private my = 0;
   private layersTarget = 0;
   private disposed = false;
+  private readonly baseScale: number;
+  private spin = 0;
+  private spinAngle = 0;
+  private lastTime: number | null = null;
 
   constructor(canvas: HTMLCanvasElement, opts: CinemaSceneOptions) {
     const T = (this.three = opts.three);
@@ -144,7 +153,8 @@ export class CinemaScene {
     const points = new T.Points(this.geometry, this.material);
     points.frustumCulled = false;
     this.pivot = new T.Group();
-    this.pivot.scale.setScalar(OBJECT_SCALE[device]);
+    this.baseScale = OBJECT_SCALE[device];
+    this.pivot.scale.setScalar(this.baseScale);
     this.pivot.add(points);
     this.scene.add(this.pivot);
   }
@@ -158,6 +168,11 @@ export class CinemaScene {
   setPointer(x: number, y: number): void {
     this.tmx = x;
     this.tmy = y;
+  }
+
+  /** Adds rotational momentum (rad/s), e.g. from scroll velocity; decays with inertia. */
+  nudge(velocity: number): void {
+    this.spin = Math.min(Math.max(this.spin + velocity, -SPIN_MAX), SPIN_MAX);
   }
 
   /** Emphasises the layered shape while the Almeida project is hovered (eased per frame). */
@@ -191,6 +206,15 @@ export class CinemaScene {
   /** Draws one frame; `time` in seconds. */
   render(time: number): void {
     if (this.disposed) return;
+    const dt = this.lastTime === null ? 0 : Math.min(time - this.lastTime, 0.1);
+    this.lastTime = time;
+    this.spinAngle += this.spin * dt;
+    this.spin *= SPIN_DAMPING;
+    if (this.ambient) {
+      // entrance: ease-out cubic from 45% to full size
+      const k = Math.min(time / ENTRANCE_S, 1);
+      this.pivot.scale.setScalar(this.baseScale * (0.45 + 0.55 * (1 - (1 - k) ** 3)));
+    }
     const P = this.p;
     const ratio = P / (SHAPE_COUNT - 1);
     this.mx = lerp(this.mx, this.tmx, POINTER_LERP);
@@ -212,7 +236,7 @@ export class CinemaScene {
     const e = f * f * (3 - 2 * f);
     this.pivot.position.x = lerp(FRAME_X[device][k], FRAME_X[device][k + 1], e);
     this.pivot.position.y = lerp(FRAME_Y[device][k], FRAME_Y[device][k + 1], e);
-    this.pivot.rotation.y = time * 0.05 + ratio * Math.PI * 1.6 + this.mx * 0.35;
+    this.pivot.rotation.y = time * 0.05 + ratio * Math.PI * 1.6 + this.mx * 0.35 + this.spinAngle;
     this.pivot.rotation.x = 0.18 + this.my * 0.18 + Math.sin(ratio * Math.PI) * 0.25;
 
     this.renderer.render(this.scene, this.camera);

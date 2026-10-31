@@ -9,6 +9,7 @@ function fakeScene(): Mocked<SceneHandle> {
   return {
     setProgress: vi.fn<SceneHandle['setProgress']>(),
     setPointer: vi.fn<SceneHandle['setPointer']>(),
+    nudge: vi.fn<SceneHandle['nudge']>(),
     setLayerLabels: vi.fn<SceneHandle['setLayerLabels']>(),
     getLayerAnchors: vi.fn<SceneHandle['getLayerAnchors']>(() => []),
     resize: vi.fn<SceneHandle['resize']>(),
@@ -62,6 +63,7 @@ describe('AmbientBackground', () => {
     runFrame(1000);
     expect(scene.setProgress).toHaveBeenCalled();
     expect(scene.render).toHaveBeenCalledTimes(1);
+    expect(scene.nudge).toHaveBeenCalled(); // scroll velocity feeds the spin
   });
 
   it('stays off when the user prefers reduced motion', async () => {

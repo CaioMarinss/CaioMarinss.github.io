@@ -228,7 +228,41 @@ html:not(.is-cinema):not(.is-resume) {
     }
   }
 
+  // halo na cor do fundo: mantém o texto legível sobre as partículas (invisível sobre o fundo liso)
+  .ch {
+    text-shadow:
+      0 0 3px rgb(7 4 5 / 0.9),
+      0 0 14px rgb(7 4 5 / 0.85);
+  }
+
   @media (prefers-reduced-motion: no-preference) {
+    // entrada da abertura: rótulo, nome palavra por palavra (sobe da máscara) e textos em sequência
+    .ch.intro {
+      .kicker {
+        animation: fade-up 0.7s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      .w > span {
+        animation: word-rise 1s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      .w:nth-of-type(2) > span {
+        animation-delay: 0.32s;
+      }
+
+      .w:nth-of-type(3) > span {
+        animation-delay: 0.44s;
+      }
+
+      .desc {
+        animation: fade-up 0.8s 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      .desc.d2 {
+        animation-delay: 0.75s;
+      }
+    }
+
     @supports (animation-timeline: view()) {
       .ch:not(.intro) > * {
         animation: reveal linear both;
@@ -236,6 +270,19 @@ html:not(.is-cinema):not(.is-resume) {
         animation-range: entry 5% entry 45%;
       }
     }
+  }
+}
+
+@keyframes word-rise {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
   }
 }
 
