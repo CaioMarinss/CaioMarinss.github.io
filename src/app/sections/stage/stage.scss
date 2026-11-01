@@ -125,12 +125,12 @@
       transform 0.9s cubic-bezier(0.25, 1, 0.5, 1),
       filter 0.9s,
       padding var(--dur) var(--ease);
+    // per property: the reveal keeps the .fade delays, the hover padding never waits
+    transition-delay: 0.35s, 0.35s, 0.35s, 0s;
   }
 
-  // hover must not wait for the .d3 reveal delay
-  .stage.active .more.d3:hover,
-  .stage.active .more.d3:focus-visible {
-    transition-delay: 0s;
+  .stage.active .more.d3 {
+    transition-delay: 0.65s, 0.65s, 0.65s, 0s;
   }
 
   @include mobile {

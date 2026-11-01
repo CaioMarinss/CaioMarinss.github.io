@@ -1,6 +1,5 @@
 import { DOCUMENT, Injectable, PLATFORM_ID, Signal, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { AnyChapterId } from '../content/content.types';
 import { PageService } from '../content/page';
 import { chapterScrollTop, isChapterActive, nearestChapter, ratioToProgress } from './chapter-math';
 import { DisplayMode } from './display-mode';

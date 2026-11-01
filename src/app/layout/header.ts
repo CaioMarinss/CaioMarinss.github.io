@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DOCUMENT, computed, inject } from '@angular/core';
 import { DisplayMode } from '../cinema/display-mode';
 import { ScrollDirector } from '../cinema/scroll-director';
-import { AnyChapterId, Lang } from '../content/content.types';
+import { CHAPTER_IDS, LIFE_CHAPTER_IDS, Lang } from '../content/content.types';
 import { LanguageService } from '../content/language';
 import { PAGE_PATHS, PageService } from '../content/page';
 
@@ -34,11 +34,11 @@ export class Header {
     this.isLife() ? PAGE_PATHS.home[this.lang()] : this.chapterHrefs()[0],
   );
 
-  /** Menu label: each page has its own nav dictionary. */
-  protected label(id: AnyChapterId): string {
+  /** Menu labels, in chapter order: each page has its own nav dictionary. */
+  protected readonly labels = computed<readonly string[]>(() => {
     const c = this.content();
-    return (this.isLife() ? (c.life.nav as Record<string, string>) : (c.nav as Record<string, string>))[id];
-  }
+    return this.isLife() ? LIFE_CHAPTER_IDS.map((id) => c.life.nav[id]) : CHAPTER_IDS.map((id) => c.nav[id]);
+  });
 
   /** Real link to the other language that lands on the chapter being read. */
   protected readonly langHref = computed(() => {

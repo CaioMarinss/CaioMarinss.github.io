@@ -8,7 +8,7 @@
         [class.on]="active() === i"
         [attr.aria-current]="active() === i ? 'true' : null"
         (click)="navigate($event, i)"
-      >{{ label(id) }}</a>
+      >{{ labels()[i] }}</a>
     }
   </nav>
   <div class="actions">

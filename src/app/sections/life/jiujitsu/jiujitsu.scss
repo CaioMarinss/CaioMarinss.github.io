@@ -55,6 +55,13 @@
     position: absolute;
     bottom: 28px;
     left: 0;
+    // The rule belongs to this chapter: it fades with the copy instead of staying on the shared stage.
+    border-top-color: transparent;
+    transition: border-color 0.9s cubic-bezier(0.25, 1, 0.5, 1) 0.35s;
     width: min(34rem, calc(var(--col) * 1.6));
+  }
+
+  .jiujitsu.active .body {
+    border-top-color: var(--line);
   }
 }
