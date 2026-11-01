@@ -1,0 +1,20 @@
+@let c = content();
+<section id="music" class="ch music" data-chapter="2" tabindex="-1" [attr.aria-label]="c.life.nav.music">
+  <p class="kicker fade">{{ c.life.music.kicker }}</p>
+  <app-title-words [lines]="c.life.music.title" />
+  <div class="body">
+    <p class="desc fade">{{ c.life.music.text }}</p>
+    <div class="player fade d2">
+      <p class="kicker">{{ c.life.music.playerLabel }}</p>
+      <iframe
+        src="https://open.spotify.com/embed/playlist/166KNpL6HlNIQq6TIO8kBa"
+        width="100%"
+        height="152"
+        frameborder="0"
+        allow="encrypted-media"
+        loading="lazy"
+        [title]="c.life.music.playerTitle"
+      ></iframe>
+    </div>
+  </div>
+</section>

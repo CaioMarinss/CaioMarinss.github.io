@@ -1,0 +1,10 @@
+@let c = content();
+<section id="games" class="ch games" data-chapter="3" tabindex="-1" [attr.aria-label]="c.life.nav.games">
+  <p class="kicker fade">{{ c.life.games.kicker }}</p>
+  <app-title-words [lines]="c.life.games.title" />
+  <ul class="list fade">
+    @for (item of c.life.games.items; track item) {
+      <li>{{ item }}</li>
+    }
+  </ul>
+</section>

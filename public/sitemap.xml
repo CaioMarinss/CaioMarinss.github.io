@@ -10,4 +10,14 @@
     <xhtml:link rel="alternate" hreflang="pt-BR" href="https://caiomarinss.github.io/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://caiomarinss.github.io/en/"/>
   </url>
+  <url>
+    <loc>https://caiomarinss.github.io/sobre/</loc>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://caiomarinss.github.io/sobre/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://caiomarinss.github.io/en/about/"/>
+  </url>
+  <url>
+    <loc>https://caiomarinss.github.io/en/about/</loc>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://caiomarinss.github.io/sobre/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://caiomarinss.github.io/en/about/"/>
+  </url>
 </urlset>

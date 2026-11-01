@@ -1,0 +1,71 @@
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.music {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 5vw, 3.5rem);
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: end;
+  max-width: 60rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.player {
+  display: grid;
+  gap: 0.75rem;
+  pointer-events: auto;
+
+  iframe {
+    display: block;
+    border: 0;
+    border-radius: 12px;
+    background: var(--bg);
+  }
+}
+
+// ---- Cinema: copy and player side by side along the foot, left of the shapes ----
+:host-context(.is-cinema) {
+  .music {
+    display: block;
+  }
+
+  .ch > .kicker {
+    position: absolute;
+    top: 34px;
+    left: 0;
+  }
+
+  app-title-words {
+    position: absolute;
+    top: 72px;
+    left: -6px;
+  }
+
+  .body {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    grid-template-columns: max(240px, calc(var(--col) - 40px)) min(380px, 28vw);
+    gap: 48px;
+    max-width: none;
+  }
+
+  // Chapters share the stage: an inactive (invisible) player must not catch clicks meant for another chapter.
+  .music:not(.active) .player {
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,7 @@
+@let c = content();
+<section id="life-intro" class="ch intro" data-chapter="0" tabindex="-1" [attr.aria-label]="c.life.nav['life-intro']">
+  <p class="kicker fade">{{ c.life.intro.kicker }}</p>
+  <app-title-words [lines]="c.life.intro.title" [level]="1" />
+  <p class="desc lead fade">{{ c.life.intro.lead }}</p>
+  <span class="scroll fade" aria-hidden="true">{{ c.ui.scrollHint }}</span>
+</section>

@@ -1,0 +1,94 @@
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+// Opening of the life page, in the home intro's mould: kicker on top, the title low and large, one lead line.
+.intro {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-content: stretch;
+
+  @include mobile {
+    grid-template-rows: auto auto auto;
+    row-gap: 1.5rem;
+    align-items: start;
+  }
+}
+
+app-title-words {
+  align-self: end;
+  padding-block: 2rem 3rem;
+
+  @include mobile {
+    padding-block: 0;
+  }
+}
+
+.lead {
+  max-width: 30rem;
+  font-size: var(--fs-lead);
+}
+
+.scroll {
+  display: none; // cinema only
+}
+
+// ---- Cinema: copy on the left, the shapes are framed to the right ----
+:host-context(.is-cinema) {
+  .intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 34px 0 20px;
+  }
+
+  app-title-words {
+    align-self: flex-start;
+    margin: auto 0 0 -6px;
+    padding: 0 0 clamp(24px, 4vh, 40px);
+  }
+
+  .lead {
+    max-width: max(320px, calc(var(--col) * 1.5));
+  }
+
+  .scroll {
+    @include label;
+    position: absolute;
+    right: 28px;
+    bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10.5px;
+    color: var(--text-muted);
+
+    &::after {
+      content: '';
+      width: 1px;
+      height: 38px;
+      background: linear-gradient(var(--accent), transparent);
+      animation: drip 2s infinite;
+    }
+  }
+}
+
+@keyframes drip {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  51% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}

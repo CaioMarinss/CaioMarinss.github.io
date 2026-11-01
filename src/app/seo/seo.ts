@@ -1,6 +1,7 @@
 import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { Lang, SiteContent } from '../content/content.types';
+import { PAGE_PATHS } from '../content/page';
 
 export const SITE_ORIGIN = 'https://caiomarinss.github.io';
 
@@ -17,9 +18,22 @@ export class SeoService {
   apply(content: SiteContent, path: string): void {
     // Prerender emits en/index.html and GitHub Pages redirects /en -> /en/, so the canonical URL ends in a slash.
     const url = SITE_ORIGIN + (path.endsWith('/') ? path : `${path}/`);
-    const { title, description } = content.meta;
+    this.applyMeta(content.lang, content.meta, url, PAGE_PATHS.home);
+  }
 
-    this.doc.documentElement.lang = HTML_LANG[content.lang];
+  /** Life page (/sobre/, /en/about/): its own title, description, canonical and alternates. */
+  applyLife(content: SiteContent): void {
+    const paths = PAGE_PATHS.life;
+    this.applyMeta(content.lang, content.life.meta, SITE_ORIGIN + paths[content.lang], paths);
+  }
+
+  private applyMeta(
+    lang: Lang,
+    { title, description }: { readonly title: string; readonly description: string },
+    url: string,
+    alternates: Record<Lang, string>,
+  ): void {
+    this.doc.documentElement.lang = HTML_LANG[lang];
     this.title.setTitle(title);
 
     this.meta.updateTag({ name: 'description', content: description });
@@ -27,7 +41,7 @@ export class SeoService {
     this.meta.updateTag({ property: 'og:title', content: title });
     this.meta.updateTag({ property: 'og:description', content: description });
     this.meta.updateTag({ property: 'og:url', content: url });
-    this.meta.updateTag({ property: 'og:locale', content: OG_LOCALE[content.lang] });
+    this.meta.updateTag({ property: 'og:locale', content: OG_LOCALE[lang] });
     this.meta.updateTag({ property: 'og:image', content: OG_IMAGE });
     this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
 
@@ -35,9 +49,9 @@ export class SeoService {
     this.meta.removeTag('name="robots"');
 
     this.setLink('canonical', url);
-    this.setLink('alternate', `${SITE_ORIGIN}/`, 'pt-BR');
-    this.setLink('alternate', `${SITE_ORIGIN}/en/`, 'en');
-    this.setLink('alternate', `${SITE_ORIGIN}/`, 'x-default');
+    this.setLink('alternate', SITE_ORIGIN + alternates.pt, 'pt-BR');
+    this.setLink('alternate', SITE_ORIGIN + alternates.en, 'en');
+    this.setLink('alternate', SITE_ORIGIN + alternates.pt, 'x-default');
   }
 
   /** Résumé pages: language and title only, kept out of search indexes. */

@@ -1,0 +1,9 @@
+@let c = content();
+<section id="kart" class="ch kart" data-chapter="4" tabindex="-1" [attr.aria-label]="c.life.nav.kart">
+  <p class="kicker fade">{{ c.life.kart.kicker }}</p>
+  <app-title-words [lines]="c.life.kart.title" />
+  <div class="body">
+    <p class="desc fade">{{ c.life.kart.text }}</p>
+    <a class="back fade d2" [href]="homeHref()"><span aria-hidden="true">← </span>{{ c.life.kart.back }}</a>
+  </div>
+</section>

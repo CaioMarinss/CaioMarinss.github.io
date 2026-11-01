@@ -6,6 +6,7 @@ import { DisplayMode } from '../cinema/display-mode';
 import { ProjectHover } from '../cinema/project-hover';
 import { ScrollDirector } from '../cinema/scroll-director';
 import { LanguageService } from '../content/language';
+import { PageService } from '../content/page';
 import { Lang } from '../content/content.types';
 import { SeoService } from '../seo/seo';
 import { ContactSection } from '../sections/contact/contact';
@@ -44,6 +45,7 @@ export class Home {
   constructor() {
     const lang = inject(ActivatedRoute).snapshot.data['lang'] as Lang;
     this.language.setLang(lang);
+    inject(PageService).setPage('home');
     inject(SeoService).apply(this.language.content(), this.language.pathFor(lang));
 
     const director = inject(ScrollDirector);
