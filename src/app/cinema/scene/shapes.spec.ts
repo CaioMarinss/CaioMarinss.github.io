@@ -42,12 +42,14 @@ describe('generateShapes', () => {
     expect(onLayer / COUNT).toBeGreaterThanOrEqual(0.85);
   });
 
-  it('builds the sphere with radius ~1.55', () => {
-    const sphere = shapes[0];
+  it('builds the </> opening, wider than tall (details in shapes-code.spec)', () => {
+    const code = shapes[0];
+    let maxX = 0;
+    let maxY = 0;
     for (let i = 0; i < COUNT; i++) {
-      const r = Math.hypot(sphere[i * 3], sphere[i * 3 + 1], sphere[i * 3 + 2]);
-      expect(r).toBeGreaterThan(1.5);
-      expect(r).toBeLessThan(1.6);
+      maxX = Math.max(maxX, Math.abs(code[i * 3]));
+      maxY = Math.max(maxY, Math.abs(code[i * 3 + 1]));
     }
+    expect(maxX).toBeGreaterThan(maxY);
   });
 });

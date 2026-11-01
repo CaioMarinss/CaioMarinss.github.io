@@ -37,6 +37,50 @@ const EDGES: readonly (readonly [number, number])[] = [
   [6, 3], [3, 7], [4, 7], [0, 8], [8, 1], [1, 5], [6, 2],
 ];
 
+/** The "</>" of the opening (shape 0) as segments in the xy plane: "<" (two), "/" and ">" (two). */
+export const CODE_STROKES: readonly (readonly [readonly [number, number], readonly [number, number]])[] = [
+  [[-1.15, 0.95], [-2.05, 0]],
+  [[-2.05, 0], [-1.15, -0.95]],
+  [[-0.42, -1.15], [0.42, 1.15]],
+  [[1.15, 0.95], [2.05, 0]],
+  [[2.05, 0], [1.15, -0.95]],
+];
+/** Glyph of each stroke: 0 "<", 1 "/", 2 ">". */
+export const CODE_GLYPH_OF_STROKE: readonly (0 | 1 | 2)[] = [0, 0, 1, 2, 2];
+/** Half the stroke thickness, and half the depth (z) that gives the "</>" some volume as it turns. */
+export const CODE_HALF_THICKNESS = 0.1;
+export const CODE_DEPTH = 0.17;
+
+const CODE_LENGTHS = CODE_STROKES.map(([[ax, ay], [bx, by]]) => Math.hypot(bx - ax, by - ay));
+const CODE_TOTAL = CODE_LENGTHS.reduce((sum, length) => sum + length, 0);
+/** Seeds the side PRNG of the "</>", so shape 0 still takes exactly one value from the shared stream. */
+const CODE_SEED_SALT = 0x3c2f3e;
+
+/**
+ * A point of the "</>": `u` in [0, 1) picks the spot along the strokes (by length, so each glyph gets a
+ * fair share), `side` spreads it across the stroke and in depth. Points next to the origin are redrawn,
+ * so the morph's burst (along the point's direction) always has a direction.
+ */
+function codePoint(u: number, side: () => number): Vec3 {
+  let along = u * CODE_TOTAL;
+  let k = 0;
+  while (k < CODE_STROKES.length - 1 && along > CODE_LENGTHS[k]) {
+    along -= CODE_LENGTHS[k];
+    k++;
+  }
+  const [[ax, ay], [bx, by]] = CODE_STROKES[k];
+  const t = Math.min(along / CODE_LENGTHS[k], 1);
+  const nx = -(by - ay) / CODE_LENGTHS[k];
+  const ny = (bx - ax) / CODE_LENGTHS[k];
+  for (;;) {
+    const w = (side() * 2 - 1) * CODE_HALF_THICKNESS;
+    const z = (side() * 2 - 1) * CODE_DEPTH;
+    const x = ax + (bx - ax) * t + nx * w;
+    const y = ay + (by - ay) * t + ny * w;
+    if (Math.hypot(x, y, z) > 0.05) return [x, y, z];
+  }
+}
+
 export function generateShapes(count: number, seed: number, set: ShapeSetId = 'home'): ShapeSet {
   if (set === 'life') return generateLifeShapes(count, seed);
   const random = mulberry32(seed);
@@ -44,20 +88,15 @@ export function generateShapes(count: number, seed: number, set: ShapeSetId = 'h
   const rnd = new Float32Array(count);
 
   const randIn = createBallSampler(random);
+  const codeRandom = mulberry32((seed ^ CODE_SEED_SALT) >>> 0);
 
   for (let i = 0; i < count; i++) {
     rnd[i] = random();
     const o = i * 3;
     const r = random();
 
-    // 0 — core sphere (Caio): fibonacci sphere, R ≈ 1.55
-    {
-      const y = count > 1 ? 1 - (i / (count - 1)) * 2 : 0;
-      const rad = Math.sqrt(1 - y * y);
-      const th = 2.39996 * i;
-      const R = 1.55 + (random() - 0.5) * 0.08;
-      shapes[0].set([Math.cos(th) * rad * R, y * R, Math.sin(th) * rad * R], o);
-    }
+    // 0 — opening "</>" (programming): one value from the shared stream, as the former sphere took
+    shapes[0].set(codePoint(random(), codeRandom), o);
 
     // 1 — integration network: 38% around hubs, the rest along edges
     if (r < 0.38) {
