@@ -37,13 +37,17 @@ const EDGES: readonly (readonly [number, number])[] = [
   [6, 3], [3, 7], [4, 7], [0, 8], [8, 1], [1, 5], [6, 2],
 ];
 
-/** The "</>" of the opening (shape 0) as segments in the xy plane: "<" (two), "/" and ">" (two). */
+/**
+ * The "</>" of the opening (shape 0) as segments in the xy plane: "<" (two), "/" and ">" (two). The
+ * approved preview's layout at 0.8 scale, so the ">" stays on screen at 4:3, in half-screen windows
+ * and on tall narrow phones with the home's fixed framing (half-width ≈ 1.71 with the thickness).
+ */
 export const CODE_STROKES: readonly (readonly [readonly [number, number], readonly [number, number]])[] = [
-  [[-1.15, 0.95], [-2.05, 0]],
-  [[-2.05, 0], [-1.15, -0.95]],
-  [[-0.42, -1.15], [0.42, 1.15]],
-  [[1.15, 0.95], [2.05, 0]],
-  [[2.05, 0], [1.15, -0.95]],
+  [[-0.92, 0.76], [-1.64, 0]],
+  [[-1.64, 0], [-0.92, -0.76]],
+  [[-0.336, -0.92], [0.336, 0.92]],
+  [[0.92, 0.76], [1.64, 0]],
+  [[1.64, 0], [0.92, -0.76]],
 ];
 /** Glyph of each stroke: 0 "<", 1 "/", 2 ">". */
 export const CODE_GLYPH_OF_STROKE: readonly (0 | 1 | 2)[] = [0, 0, 1, 2, 2];

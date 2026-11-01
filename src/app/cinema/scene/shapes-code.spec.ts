@@ -52,6 +52,8 @@ describe('home opening "</>"', () => {
     perGlyph.forEach((n) => expect(n / COUNT).toBeGreaterThanOrEqual(0.2));
   });
 
+  // Half-width within the spec's ±1.7–2.0 range: wider, the ">" leaves the screen at 4:3 (1024×768),
+  // in half-screen windows and on tall narrow phones, where the old sphere (±1.59) still fitted.
   it('keeps the glyph inside the opening frame', () => {
     const code = shapes[0];
     let maxX = 0;
@@ -60,7 +62,7 @@ describe('home opening "</>"', () => {
       maxX = Math.max(maxX, Math.abs(code[i * 3]));
       maxY = Math.max(maxY, Math.abs(code[i * 3 + 1]));
     }
-    expect(maxX).toBeLessThanOrEqual(2.2);
-    expect(maxY).toBeLessThanOrEqual(1.3);
+    expect(maxX).toBeLessThanOrEqual(1.75);
+    expect(maxY).toBeLessThanOrEqual(1.05);
   });
 });
