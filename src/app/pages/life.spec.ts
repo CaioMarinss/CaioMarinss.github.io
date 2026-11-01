@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { afterEach, vi } from 'vitest';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { routes } from '../app.routes';
 import { CONTENT } from '../content/content';
@@ -23,6 +24,8 @@ const words = (lines: readonly TitleLine[]): string =>
   lines.map((l) => l.words.map((w) => w.text).join(' ')).join(' ');
 
 describe('Life page', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   it('renders the five life chapters in order', async () => {
     const root = await renderLife();
     const sections = Array.from(root.querySelectorAll('section.ch'));
@@ -42,7 +45,9 @@ describe('Life page', () => {
     expect(root.querySelector('#life-intro h1')).not.toBeNull();
   });
 
-  it('embeds the playlist lazily with an accessible title', async () => {
+  it('embeds the playlist with an accessible title once hydrated (deferral: music.spec.ts)', async () => {
+    // Without IntersectionObserver the static page mounts the player right after hydration.
+    vi.stubGlobal('IntersectionObserver', undefined);
     const iframe = (await renderLife()).querySelector<HTMLIFrameElement>('#music .player iframe');
     expect(iframe).not.toBeNull();
     expect(iframe?.getAttribute('src')).toBe(PLAYLIST);
@@ -51,6 +56,7 @@ describe('Life page', () => {
     expect(iframe?.getAttribute('height')).toBe('152');
     expect(iframe?.getAttribute('width')).toBe('100%');
     expect(iframe?.getAttribute('allow')).toBe('encrypted-media');
+    expect(iframe?.getAttribute('frameborder')).toBe('0');
   });
 
   it('links back to the home in each language', async () => {
@@ -97,7 +103,7 @@ describe('Life page', () => {
     for (const s of copy) {
       expect(text).toContain(s);
     }
-    expect(root.querySelector('iframe')).not.toBeNull();
+    expect(root.querySelector('#music .player')).not.toBeNull();
     expect(root.querySelectorAll('#games li').length).toBe(4);
   });
 });

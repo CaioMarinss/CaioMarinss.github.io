@@ -100,6 +100,12 @@ export class Cursor {
       };
       const onOver = (e: Event): void => {
         const target = e.target instanceof Element ? e.target : null;
+        // A cross-origin iframe (the Spotify player) swallows pointermove: hide instead of freezing
+        // at its edge; the next pointermove on the document shows the cursor again.
+        if (target instanceof HTMLIFrameElement) {
+          host.classList.remove('ready');
+          return;
+        }
         ring.classList.toggle('hover', target?.closest('a, button') != null);
       };
       const onLeave = (): void => host.classList.remove('ready');
