@@ -10,6 +10,11 @@ const TILTS = [0.4, -0.5, 1.1, -0.2] as const;
 /** Initial phase of each cluster along its circle (rad). */
 const PHASES = [0, 1.2, 2.1, 3.3] as const;
 
+/** Music shape: number of strings, radius of the circle they stand on and half their length. */
+export const STRING_COUNT = 6;
+export const STRING_RADIUS = 0.65;
+export const STRING_HALF = 1.5;
+
 const TAU = Math.PI * 2;
 
 /**
@@ -70,24 +75,37 @@ export function generateLifeShapes(count: number, seed: number): ShapeSet {
       }
     }
 
-    // 2 - strings: six parallel waving lines
+    // 2 - strings: six vertical plucked strings standing on a circle. The scene spins about Y, so a
+    // flat row of strings would go edge-on and collapse into one streak; vertical lines on a circle
+    // keep their full length and stay apart from every angle.
     {
-      const s = i % 6;
-      const x = (random() * 2 - 1) * 2.4;
-      shapes[2].set([x, (s - 2.5) * 0.22 + Math.sin(x * 3 + s) * 0.12, (random() - 0.5) * 0.06], o);
+      const s = i % STRING_COUNT;
+      const a = (s / STRING_COUNT) * TAU + 0.26;
+      const t = random();
+      const y = (t * 2 - 1) * STRING_HALF;
+      // standing wave: still at both ends, widest mid-string, a different phase per string
+      const w = Math.sin(Math.PI * t) * Math.sin(t * 3 * Math.PI + s) * 0.1;
+      shapes[2].set(
+        [
+          Math.cos(a) * STRING_RADIUS - Math.sin(a) * w + (random() - 0.5) * 0.03,
+          y,
+          Math.sin(a) * STRING_RADIUS + Math.cos(a) * w + (random() - 0.5) * 0.03,
+        ],
+        o,
+      );
     }
 
-    // 3 - crosshair: two rings (r 1.1 and 1.9) and four radial ticks from 0.6 to 2.4
+    // 3 - crosshair: two rings (r 0.7 and 1.25) and four radial ticks from 0.35 to 1.6
     {
       const r = random();
       const a = random() * TAU;
       if (r < 0.3) {
-        shapes[3].set([Math.cos(a) * 1.1, Math.sin(a) * 1.1, (random() - 0.5) * 0.04], o);
+        shapes[3].set([Math.cos(a) * 0.7, Math.sin(a) * 0.7, (random() - 0.5) * 0.04], o);
       } else if (r < 0.7) {
-        shapes[3].set([Math.cos(a) * 1.9, Math.sin(a) * 1.9, (random() - 0.5) * 0.04], o);
+        shapes[3].set([Math.cos(a) * 1.25, Math.sin(a) * 1.25, (random() - 0.5) * 0.04], o);
       } else {
         const ang = (i % 4) * (Math.PI / 2);
-        const d = 0.6 + random() * 1.8;
+        const d = 0.35 + random() * 1.25;
         shapes[3].set([Math.cos(ang) * d + (random() - 0.5) * 0.03, Math.sin(ang) * d + (random() - 0.5) * 0.03, (random() - 0.5) * 0.04], o);
       }
     }

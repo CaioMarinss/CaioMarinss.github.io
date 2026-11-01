@@ -49,7 +49,7 @@ const FRAME_X: Record<ShapeSetId, Record<Profile, readonly number[]>> = {
     ambient: [0.78, 0, 0, 0, 0],
   },
   life: {
-    desktop: [1.55, 1.35, 1.35, -1.6, 1.35],
+    desktop: [1.55, 1.35, 1.75, 1.6, 1.35],
     mobile: [0, 0, 0, 0, 0],
     ambient: [0.78, 0, 0, 0, 0],
   },
@@ -66,7 +66,7 @@ const FRAME_Y: Record<ShapeSetId, Record<Profile, readonly number[]>> = {
     ambient: [1.28, 0, 0, 0, 0.1],
   },
 };
-/** Strength of the orbiting clusters per shape set; the ambient layer is calmer. */
+/** Strength of the life opening's orbiting clusters per device profile; the ambient layer is calmer. */
 const ORBIT_STRENGTH = { desktop: 1, mobile: 1, ambient: 0.6 } as const;
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;

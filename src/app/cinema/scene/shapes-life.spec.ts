@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ORBIT_RADIUS, generateLifeShapes } from './shapes-life';
+import { ORBIT_RADIUS, STRING_COUNT, STRING_HALF, STRING_RADIUS, generateLifeShapes } from './shapes-life';
 import { generateShapes } from './shapes';
 
 describe('life shapes', () => {
@@ -63,6 +63,27 @@ describe('life shapes', () => {
       if (orbit[i * 4 + 3] === 0) continue;
       const dot = orbit[i * 4] * shapes[0][i * 3] + orbit[i * 4 + 1] * shapes[0][i * 3 + 1] + orbit[i * 4 + 2] * shapes[0][i * 3 + 2];
       expect(Math.abs(dot)).toBeLessThanOrEqual(0.28 + 1e-5);
+    }
+  });
+
+  it('music strings are vertical lines standing on a circle, so they read from any Y rotation', () => {
+    const { shapes } = generateLifeShapes(COUNT, 1);
+    const angles = new Set<number>();
+    for (let i = 0; i < COUNT; i++) {
+      const [x, y, z] = [shapes[2][i * 3], shapes[2][i * 3 + 1], shapes[2][i * 3 + 2]];
+      expect(Math.abs(y)).toBeLessThanOrEqual(STRING_HALF + 1e-6);
+      expect(Math.hypot(x, z)).toBeGreaterThanOrEqual(STRING_RADIUS - 0.15);
+      expect(Math.hypot(x, z)).toBeLessThanOrEqual(STRING_RADIUS + 0.15);
+      angles.add(Math.round((Math.atan2(z, x) / (Math.PI * 2)) * STRING_COUNT * 2));
+    }
+    // six strings, evenly spread: their particles cluster around six distinct directions
+    expect(angles.size).toBeGreaterThanOrEqual(STRING_COUNT);
+  });
+
+  it('crosshair stays compact (radius 1.6 at most) so it fits beside the copy', () => {
+    const { shapes } = generateLifeShapes(COUNT, 1);
+    for (let i = 0; i < COUNT; i++) {
+      expect(Math.hypot(shapes[3][i * 3], shapes[3][i * 3 + 1])).toBeLessThanOrEqual(1.65);
     }
   });
 });

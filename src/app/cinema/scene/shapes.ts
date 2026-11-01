@@ -1,15 +1,21 @@
-import { SHAPE_COUNT, createBallSampler, mulberry32, type ShapeSet, type ShapeSetId, type Vec3 } from './shape-core';
-import { generateLifeShapes } from './shapes-life';
-
-export { SHAPE_COUNT, createBallSampler, mulberry32 };
-export type { ShapeSet, ShapeSetId, Vec3 };
-
 /**
  * Particle target shapes, one per chapter, ported from the approved prototype. Plain math without
  * Three.js so it is testable and stays out of the lazy chunk's critical path. A seeded PRNG
  * replaces Math.random to make the output deterministic.
  */
 
+import {
+  SHAPE_COUNT,
+  createBallSampler,
+  mulberry32,
+  type ShapeSet,
+  type ShapeSetId,
+  type Vec3,
+} from './shape-core';
+import { generateLifeShapes } from './shapes-life';
+
+export { SHAPE_COUNT, createBallSampler, mulberry32 };
+export type { ShapeSet, ShapeSetId, Vec3 };
 
 /** Heights of the three layers of shape 2 (front / API / database). */
 export const LAYER_Y = [1.15, 0, -1.15] as const;
@@ -30,10 +36,6 @@ const EDGES: readonly (readonly [number, number])[] = [
   [0, 2], [1, 2], [2, 3], [3, 4], [2, 5], [4, 5], [0, 6],
   [6, 3], [3, 7], [4, 7], [0, 8], [8, 1], [1, 5], [6, 2],
 ];
-
-
-
-
 
 export function generateShapes(count: number, seed: number, set: ShapeSetId = 'home'): ShapeSet {
   if (set === 'life') return generateLifeShapes(count, seed);
