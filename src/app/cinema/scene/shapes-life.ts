@@ -99,7 +99,7 @@ export function generateLifeShapes(count: number, seed: number): ShapeSet {
       }
     }
 
-    // 4 - kart circuit: a closed band along a curvy spline, plus a 16-particle start grid
+    // 4 - kart: the Interlagos circuit as a flat band, plus a 16-particle start grid on the pit straight
     shapes[4].set(trackPoint(i, random), o);
   }
 
@@ -209,22 +209,39 @@ function beltPoint(i: number, random: () => number): Vec3 {
 }
 
 /**
- * Kart circuit control polygon in the XZ plane: the main straight at +z, a hairpin fold on the right,
- * fast sweepers, a chicane on the back straight and a tight infield hairpin on the left.
+ * Kart shape: the Interlagos circuit (Autodromo Jose Carlos Pace, Sao Paulo), run anticlockwise.
+ * Centerline from the bacinger/f1-circuits GeoJSON (MIT), resampled to 72 evenly spaced points
+ * starting on the start line: x east, z south (a north-up map), longest half-extent 2. From index 0:
+ * pit straight, S do Senna, Curva do Sol, Reta Oposta, Descida do Lago, Ferradura, Laranjinha,
+ * Pinheirinho, Bico de Pato, Mergulho, Juncao and the Subida dos Boxes.
  */
 const TRACK_CONTROL: readonly (readonly [number, number])[] = [
-  [-1.4, 1.3], [1.4, 1.3], [2.15, 1.05], [1.95, 0.6], [0.7, 0.6], [0.15, 0.35], [0.45, 0.0], [1.4, -0.05],
-  [2.1, -0.4], [2.0, -1.05], [1.3, -1.4], [0.5, -1.3], [-0.1, -1.05], [-0.6, -1.45], [-1.5, -1.5],
-  [-2.15, -1.1], [-1.9, -0.55], [-1.05, -0.35], [-0.8, 0.1], [-1.6, 0.35], [-2.2, 0.75], [-2.05, 1.2],
+  [-1.04, 0.9], [-0.98, 1.12], [-0.92, 1.34], [-0.86, 1.57], [-0.8, 1.79], [-0.71, 2],
+  [-0.5, 1.99], [-0.33, 1.85], [-0.12, 1.93], [0.11, 1.99], [0.33, 1.95], [0.52, 1.82],
+  [0.65, 1.63], [0.72, 1.41], [0.79, 1.19], [0.84, 0.97], [0.9, 0.74], [0.96, 0.52],
+  [1.01, 0.29], [1.07, 0.07], [1.13, -0.16], [1.19, -0.38], [1.25, -0.6], [1.29, -0.83],
+  [1.1, -0.95], [0.88, -1], [0.65, -0.99], [0.45, -0.88], [0.3, -0.7], [0.16, -0.51],
+  [0.03, -0.33], [-0.11, -0.14], [-0.25, 0.05], [-0.39, 0.23], [-0.59, 0.31], [-0.82, 0.26],
+  [-0.97, 0.1], [-1.02, -0.13], [-1.05, -0.36], [-0.92, -0.5], [-0.72, -0.38], [-0.52, -0.47],
+  [-0.56, -0.68], [-0.72, -0.84], [-0.85, -1.03], [-0.89, -1.26], [-0.77, -1.39], [-0.61, -1.22],
+  [-0.45, -1.05], [-0.24, -0.98], [-0.02, -1.04], [0.14, -1.2], [0.26, -1.4], [0.38, -1.6],
+  [0.47, -1.8], [0.28, -1.92], [0.06, -2], [-0.17, -1.99], [-0.39, -1.94], [-0.61, -1.86],
+  [-0.81, -1.74], [-0.97, -1.58], [-1.06, -1.36], [-1.11, -1.14], [-1.16, -0.91], [-1.21, -0.69],
+  [-1.27, -0.46], [-1.29, -0.23], [-1.26, 0], [-1.2, 0.22], [-1.15, 0.45], [-1.09, 0.67],
 ];
 /** Width of the track band and the height of its plane. */
-export const TRACK_WIDTH = 0.3;
-/** Scale applied to TRACK_CONTROL so the circuit stays clear of the copy. */
-const TRACK_SCALE = 0.78;
+export const TRACK_WIDTH = 0.1;
 export const TRACK_Y = 0;
 const TRACK_SAMPLES = 1024;
+/**
+ * The scene's Y spin at the kart chapter is 1.6 pi plus the slow drift (~1 rad after ~20 s).
+ * Turning the circuit by minus that angle shows it as the familiar north-up map when it arrives.
+ */
+const TRACK_FACING = Math.PI * 1.6 + 1;
+const TRACK_COS = Math.cos(-TRACK_FACING);
+const TRACK_SIN = Math.sin(-TRACK_FACING);
 
-/** `n` points along the closed uniform Catmull-Rom spline through TRACK_CONTROL, as (x, z). */
+/** `n` points along the closed uniform Catmull-Rom spline through TRACK_CONTROL, as (x, z), turned to face. */
 export function trackCenterline(n: number): [number, number][] {
   const m = TRACK_CONTROL.length;
   const pts: [number, number][] = [];
@@ -238,7 +255,9 @@ export function trackCenterline(n: number): [number, number][] {
     const p3 = TRACK_CONTROL[(k + 2) % m];
     const f = (a: number, b: number, c: number, d: number): number =>
       0.5 * (2 * b + (c - a) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (3 * b - a - 3 * c + d) * t * t * t);
-    pts.push([f(p0[0], p1[0], p2[0], p3[0]) * TRACK_SCALE, f(p0[1], p1[1], p2[1], p3[1]) * TRACK_SCALE]);
+    const x = f(p0[0], p1[0], p2[0], p3[0]);
+    const z = f(p0[1], p1[1], p2[1], p3[1]);
+    pts.push([x * TRACK_COS + z * TRACK_SIN, -x * TRACK_SIN + z * TRACK_COS]);
   }
   return pts;
 }
@@ -275,7 +294,8 @@ function onTrack(d: number, w: number): Vec3 {
 
 /**
  * One track particle. The first 16 form the start grid: two rows of eight across the main straight.
- * The rest: 78% on the two kerb edges, 22% filling the asphalt between them.
+ * The rest: half on the two kerb edges, half filling the asphalt between them (the band is narrow
+ * because the infield sections run close together).
  */
 function trackPoint(i: number, random: () => number): Vec3 {
   if (i < 16) {
@@ -285,7 +305,7 @@ function trackPoint(i: number, random: () => number): Vec3 {
     return [p[0], p[1] + 0.01, p[2]];
   }
   const d = random() * TRACK.length;
-  const w = random() < 0.78 ? (random() < 0.5 ? -0.5 : 0.5) + jitter(random, 0.04) : random() - 0.5;
+  const w = random() < 0.5 ? (random() < 0.5 ? -0.5 : 0.5) + jitter(random, 0.04) : random() - 0.5;
   const p = onTrack(d, w * TRACK_WIDTH);
   return [p[0], p[1] + jitter(random, 0.02), p[2]];
 }
