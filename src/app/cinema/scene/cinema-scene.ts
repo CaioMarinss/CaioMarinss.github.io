@@ -63,8 +63,17 @@ const FRAME_Y: Record<ShapeSetId, Record<Profile, readonly number[]>> = {
   life: {
     desktop: [0.05, 0.1, 0, 0, 0],
     mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
-    ambient: [1.28, 0, 0, 0, 0.1],
+    // ambient kart: low, in the room left below the last chapter's copy
+    ambient: [1.28, 0, 0, 0, -0.9],
   },
+};
+/**
+ * Extra pitch toward the camera per chapter (rad), added to the base tilt. The life kart track lies
+ * flat, so it leans forward to show its layout from any Y angle; home adds nothing.
+ */
+const TILT_X: Record<ShapeSetId, readonly number[]> = {
+  home: [0, 0, 0, 0, 0],
+  life: [0, 0, 0, 0, 0.55],
 };
 /** Strength of the life opening's orbiting clusters per device profile; the ambient layer is calmer. */
 const ORBIT_STRENGTH = { desktop: 1, mobile: 1, ambient: 0.6 } as const;
@@ -269,7 +278,8 @@ export class CinemaScene {
     this.pivot.position.x = lerp(FRAME_X[this.shapeSet][device][k], FRAME_X[this.shapeSet][device][k + 1], e);
     this.pivot.position.y = lerp(FRAME_Y[this.shapeSet][device][k], FRAME_Y[this.shapeSet][device][k + 1], e);
     this.pivot.rotation.y = time * 0.05 + ratio * Math.PI * 1.6 + this.mx * 0.35 + this.spinAngle;
-    this.pivot.rotation.x = 0.18 + this.my * 0.18 + Math.sin(ratio * Math.PI) * 0.25;
+    const tilt = lerp(TILT_X[this.shapeSet][k], TILT_X[this.shapeSet][k + 1], e);
+    this.pivot.rotation.x = 0.18 + this.my * 0.18 + Math.sin(ratio * Math.PI) * 0.25 + tilt;
 
     this.renderer.render(this.scene, this.camera);
   }

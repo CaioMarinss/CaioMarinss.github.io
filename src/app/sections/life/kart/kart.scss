@@ -63,3 +63,13 @@
     font-size: 26px;
   }
 }
+
+// ---- Static (phones): room after the last chapter ----
+// The ambient scene reaches the track only once this chapter is centred on the reading line (45%
+// of the screen); as the page's last section it is too short to get there. A margin (outside the
+// chapter box, so it does not move its centre) lets it scroll up, and the track shows below the copy.
+:host-context(html:not(.is-cinema):not(.is-resume)) {
+  .kart {
+    margin-bottom: 50svh;
+  }
+}

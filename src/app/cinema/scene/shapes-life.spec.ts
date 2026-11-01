@@ -1,5 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { ORBIT_RADIUS, STRING_COUNT, STRING_HALF, STRING_RADIUS, generateLifeShapes } from './shapes-life';
+import {
+  BELT_BAR_END,
+  BELT_BAR_START,
+  BELT_FACING,
+  BELT_STRIPES,
+  BELT_WAIST_X,
+  BELT_WAIST_Z,
+  BELT_WIDTH,
+  BELT_Y,
+  ORBIT_RADIUS,
+  STRING_COUNT,
+  STRING_HALF,
+  STRING_RADIUS,
+  TRACK_WIDTH,
+  TRACK_Y,
+  generateLifeShapes,
+  inStripeGap,
+  trackCenterline,
+} from './shapes-life';
 import { generateShapes } from './shapes';
 
 describe('life shapes', () => {
@@ -84,6 +102,103 @@ describe('life shapes', () => {
     const { shapes } = generateLifeShapes(COUNT, 1);
     for (let i = 0; i < COUNT; i++) {
       expect(Math.hypot(shapes[3][i * 3], shapes[3][i * 3 + 1])).toBeLessThanOrEqual(1.65);
+    }
+  });
+
+  /** Belt particles turned back to the frame they were built in (knot at +z). */
+  const beltPoints = (): [number, number, number][] => {
+    const { shapes } = generateLifeShapes(COUNT * 4, 1);
+    const c = Math.cos(BELT_FACING);
+    const s = Math.sin(BELT_FACING);
+    const pts: [number, number, number][] = [];
+    for (let i = 0; i < COUNT * 4; i++) {
+      const [x, y, z] = [shapes[1][i * 3], shapes[1][i * 3 + 1], shapes[1][i * 3 + 2]];
+      pts.push([x * c + z * s, y, -x * s + z * c]);
+    }
+    return pts;
+  };
+
+  it('belt band is a flat, filled band around the waist, as wide as BELT_WIDTH', () => {
+    const band = beltPoints().filter(
+      ([x, y, z]) => Math.abs(Math.hypot(x / BELT_WAIST_X, z / BELT_WAIST_Z) - 1) < 0.03 && Math.abs(y - BELT_Y) <= BELT_WIDTH / 2 + 0.02,
+    );
+    expect(band.length / (COUNT * 4)).toBeGreaterThanOrEqual(0.35);
+    const ys = band.map(([, y]) => y);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThanOrEqual(BELT_WIDTH * 0.95);
+    // filled, not just two edge lines: the middle third of the band holds a fair share
+    const middle = ys.filter((y) => Math.abs(y - BELT_Y) < BELT_WIDTH / 6).length;
+    expect(middle / band.length).toBeGreaterThanOrEqual(0.15);
+    // wraps all the way round: particles behind (z < 0) as well as in front, left as well as right
+    expect(band.some(([, , z]) => z < -BELT_WAIST_Z * 0.9)).toBe(true);
+    expect(band.some(([x]) => x < -BELT_WAIST_X * 0.9)).toBe(true);
+    expect(band.some(([x]) => x > BELT_WAIST_X * 0.9)).toBe(true);
+  });
+
+  it('belt tails hang below the band in front of the knot, splayed diagonally to both sides', () => {
+    const low = beltPoints().filter(([, y]) => y < BELT_Y - BELT_WIDTH / 2 - 0.3);
+    expect(low.length / (COUNT * 4)).toBeGreaterThanOrEqual(0.25);
+    low.forEach(([, , z]) => expect(z).toBeGreaterThan(BELT_WAIST_Z));
+    // the lowest particles sit well out to each side: the tails run diagonally, not straight down
+    const minY = Math.min(...low.map(([, y]) => y));
+    const tips = low.filter(([, y]) => y < minY + 0.3);
+    expect(tips.some(([x]) => x < -0.5)).toBe(true);
+    expect(tips.some(([x]) => x > 0.5)).toBe(true);
+    expect(tips.every(([x]) => Math.abs(x) > 0.4)).toBe(true);
+  });
+
+  it('rank bar sits inside each tail with one gap per grau', () => {
+    let gaps = 0;
+    let inside = false;
+    for (let t = 0; t <= 1; t += 0.001) {
+      const g = inStripeGap(t);
+      if (g && !inside) {
+        gaps++;
+        expect(t).toBeGreaterThan(BELT_BAR_START);
+        expect(t).toBeLessThan(BELT_BAR_END);
+      }
+      inside = g;
+    }
+    expect(gaps).toBe(BELT_STRIPES);
+  });
+
+  it('kart track is a closed, curvy circuit: many turns in both directions', () => {
+    const n = 2000;
+    const pts = trackCenterline(n);
+    let total = 0;
+    let signChanges = 0;
+    let lastSign = 0;
+    const heading = (j: number): number => {
+      const a = pts[j % n];
+      const b = pts[(j + 1) % n];
+      return Math.atan2(b[1] - a[1], b[0] - a[0]);
+    };
+    for (let j = 0; j < n; j++) {
+      let d = heading(j + 1) - heading(j);
+      d = Math.atan2(Math.sin(d), Math.cos(d));
+      total += Math.abs(d);
+      // count left/right switches between real corners, ignoring the near-straight bits
+      if (Math.abs(d) > 0.004) {
+        const sign = Math.sign(d);
+        if (lastSign !== 0 && sign !== lastSign) signChanges++;
+        lastSign = sign;
+      }
+    }
+    // an oval turns 2 pi in one direction; this circuit turns far more and keeps switching sides
+    expect(total).toBeGreaterThanOrEqual(5 * Math.PI);
+    expect(signChanges).toBeGreaterThanOrEqual(6);
+    // closed: the last sample runs into the first
+    const gap = Math.hypot(pts[n - 1][0] - pts[0][0], pts[n - 1][1] - pts[0][1]);
+    expect(gap).toBeLessThan(0.05);
+  });
+
+  it('kart particles lie on the flat track band, within half its width of the centerline', () => {
+    const { shapes } = generateLifeShapes(COUNT, 1);
+    const line = trackCenterline(1500);
+    for (let i = 0; i < COUNT; i++) {
+      const [x, y, z] = [shapes[4][i * 3], shapes[4][i * 3 + 1], shapes[4][i * 3 + 2]];
+      expect(Math.abs(y - TRACK_Y)).toBeLessThanOrEqual(0.02);
+      const d = Math.min(...line.map(([cx, cz]) => Math.hypot(x - cx, z - cz)));
+      expect(d).toBeLessThanOrEqual(TRACK_WIDTH / 2 + 0.03);
     }
   });
 });
