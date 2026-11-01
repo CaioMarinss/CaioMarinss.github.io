@@ -1,4 +1,8 @@
+import { SHAPE_COUNT, createBallSampler, mulberry32, type ShapeSet, type ShapeSetId, type Vec3 } from './shape-core';
 import { generateLifeShapes } from './shapes-life';
+
+export { SHAPE_COUNT, createBallSampler, mulberry32 };
+export type { ShapeSet, ShapeSetId, Vec3 };
 
 /**
  * Particle target shapes, one per chapter, ported from the approved prototype. Plain math without
@@ -6,12 +10,9 @@ import { generateLifeShapes } from './shapes-life';
  * replaces Math.random to make the output deterministic.
  */
 
-export const SHAPE_COUNT = 5;
 
 /** Heights of the three layers of shape 2 (front / API / database). */
 export const LAYER_Y = [1.15, 0, -1.15] as const;
-
-export type Vec3 = readonly [number, number, number];
 
 /** Network hubs and the edges linking them (shape 1). */
 const HUBS: readonly Vec3[] = [
@@ -30,40 +31,9 @@ const EDGES: readonly (readonly [number, number])[] = [
   [6, 3], [3, 7], [4, 7], [0, 8], [8, 1], [1, 5], [6, 2],
 ];
 
-/** Deterministic PRNG in [0, 1). */
-export function mulberry32(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
-/** Which target-shape set to generate: the home chapters or the life page. */
-export type ShapeSetId = 'home' | 'life';
 
-/** Uniform point sampler inside a ball of radius r (prototype `randIn`), drawing from `random`. */
-export function createBallSampler(random: () => number): (r: number) => Vec3 {
-  return (r) => {
-    const z = random() * 2 - 1;
-    const phi = random() * Math.PI * 2;
-    const s = Math.sqrt(1 - z * z);
-    const len = r * Math.cbrt(random());
-    return [Math.cos(phi) * s * len, z * len, Math.sin(phi) * s * len];
-  };
-}
 
-export interface ShapeSet {
-  /** SHAPE_COUNT arrays of `count * 3` xyz positions. */
-  readonly shapes: Float32Array[];
-  /** One random value per particle in [0, 1): per-particle delay, size and alpha. */
-  readonly rnd: Float32Array;
-  /** `count * 4` values per particle: (axisX, axisY, axisZ, speed rad/s). speed 0 means no orbit. */
-  readonly orbit: Float32Array;
-}
 
 export function generateShapes(count: number, seed: number, set: ShapeSetId = 'home'): ShapeSet {
   if (set === 'life') return generateLifeShapes(count, seed);

@@ -1,6 +1,6 @@
 import type * as THREE from 'three';
 import { BG_FRAGMENT, BG_VERTEX, PARTICLE_FRAGMENT, PARTICLE_VERTEX } from './shaders';
-import { LAYER_Y, SHAPE_COUNT, generateShapes } from './shapes';
+import { LAYER_Y, SHAPE_COUNT, ShapeSetId, generateShapes } from './shapes';
 
 export type ThreeModule = typeof THREE;
 
@@ -12,6 +12,8 @@ export interface CinemaSceneOptions {
    * centred object, since the copy scrolls over it.
    */
   readonly ambient?: boolean;
+  /** Which shape set to draw: the home chapters (default) or the life page. */
+  readonly shapes?: ShapeSetId;
   /** The `three` module, injected so the dynamic import lives in one place (and tests can fake it). */
   readonly three: ThreeModule;
 }
@@ -40,16 +42,32 @@ const POINTER_LERP = 0.05;
 const LAYERS_LERP = 0.08;
 const MOBILE_BREAKPOINT = 860;
 /** Per-chapter framing: where the object sits (world units) to make room for the text. */
-const FRAME_X = {
-  desktop: [1.55, 1.25, 1.35, -1.6, 0],
-  mobile: [0, 0, 0, 0, 0],
-  ambient: [0.78, 0, 0, 0, 0],
-} as const;
-const FRAME_Y = {
-  desktop: [0.05, 0.25, -0.25, 0, 0.15],
-  mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
-  ambient: [1.28, 0, 0, 0, 0.1],
-} as const;
+const FRAME_X: Record<ShapeSetId, Record<Profile, readonly number[]>> = {
+  home: {
+    desktop: [1.55, 1.25, 1.35, -1.6, 0],
+    mobile: [0, 0, 0, 0, 0],
+    ambient: [0.78, 0, 0, 0, 0],
+  },
+  life: {
+    desktop: [1.55, 1.35, 1.35, -1.6, 1.35],
+    mobile: [0, 0, 0, 0, 0],
+    ambient: [0.78, 0, 0, 0, 0],
+  },
+};
+const FRAME_Y: Record<ShapeSetId, Record<Profile, readonly number[]>> = {
+  home: {
+    desktop: [0.05, 0.25, -0.25, 0, 0.15],
+    mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
+    ambient: [1.28, 0, 0, 0, 0.1],
+  },
+  life: {
+    desktop: [0.05, 0.1, 0, 0, 0],
+    mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
+    ambient: [1.28, 0, 0, 0, 0.1],
+  },
+};
+/** Strength of the orbiting clusters per shape set; the ambient layer is calmer. */
+const ORBIT_STRENGTH = { desktop: 1, mobile: 1, ambient: 0.6 } as const;
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
@@ -79,10 +97,12 @@ export class CinemaScene {
     uSize: { value: number };
     uPR: { value: number };
     uLayers: { value: number };
+    uOrbit: { value: number };
   };
 
   private compact: boolean;
   private readonly ambient: boolean;
+  private readonly shapeSet: ShapeSetId;
   private width = 1;
   private height = 1;
   private p = 0;
@@ -101,6 +121,7 @@ export class CinemaScene {
     const T = (this.three = opts.three);
     this.compact = opts.mobile;
     this.ambient = opts.ambient ?? false;
+    this.shapeSet = opts.shapes ?? 'home';
     const device: Profile = this.ambient ? 'ambient' : opts.mobile ? 'mobile' : 'desktop';
 
     // Ambient: transparent canvas and no topographic layer — that full-screen noise shader is the
@@ -134,11 +155,12 @@ export class CinemaScene {
     if (!this.ambient) this.camera.add(bg);
 
     // Particles: one attribute per target shape, morphed in the vertex shader.
-    const { shapes, rnd } = generateShapes(PARTICLES[device], SHAPE_SEED);
+    const { shapes, rnd, orbit } = generateShapes(PARTICLES[device], SHAPE_SEED, this.shapeSet);
     this.geometry = new T.BufferGeometry();
     this.geometry.setAttribute('position', new T.BufferAttribute(shapes[0].slice(), 3));
     for (let k = 0; k < SHAPE_COUNT; k++) this.geometry.setAttribute(`p${k}`, new T.BufferAttribute(shapes[k], 3));
     this.geometry.setAttribute('rnd', new T.BufferAttribute(rnd, 1));
+    this.geometry.setAttribute('orbit', new T.BufferAttribute(orbit, 4));
     // Morphed positions leave the shape-0 bounds; skip frustum culling instead of a stale sphere.
     this.pUniforms = {
       uP: { value: 0 },
@@ -146,6 +168,7 @@ export class CinemaScene {
       uSize: { value: POINT_SIZE[device] },
       uPR: { value: this.renderer.getPixelRatio() },
       uLayers: { value: 0 },
+      uOrbit: { value: this.shapeSet === 'life' ? ORBIT_STRENGTH[device] : 0 },
     };
     this.material = new T.ShaderMaterial({
       uniforms: this.pUniforms,
@@ -243,8 +266,8 @@ export class CinemaScene {
     const k = Math.min(Math.floor(P), SHAPE_COUNT - 2);
     const f = P - k;
     const e = f * f * (3 - 2 * f);
-    this.pivot.position.x = lerp(FRAME_X[device][k], FRAME_X[device][k + 1], e);
-    this.pivot.position.y = lerp(FRAME_Y[device][k], FRAME_Y[device][k + 1], e);
+    this.pivot.position.x = lerp(FRAME_X[this.shapeSet][device][k], FRAME_X[this.shapeSet][device][k + 1], e);
+    this.pivot.position.y = lerp(FRAME_Y[this.shapeSet][device][k], FRAME_Y[this.shapeSet][device][k + 1], e);
     this.pivot.rotation.y = time * 0.05 + ratio * Math.PI * 1.6 + this.mx * 0.35 + this.spinAngle;
     this.pivot.rotation.x = 0.18 + this.my * 0.18 + Math.sin(ratio * Math.PI) * 0.25;
 

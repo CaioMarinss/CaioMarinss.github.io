@@ -35,9 +35,11 @@ void main(){
 
 /** Morph between the five shapes with a per-particle delay and a burst mid-transition. */
 export const PARTICLE_VERTEX = /* glsl */ `
-attribute vec3 p0,p1,p2,p3,p4; attribute float rnd;
+attribute vec3 p0,p1,p2,p3,p4; attribute float rnd; attribute vec4 orbit; uniform float uOrbit;
 uniform float uP,uTime,uSize,uPR,uLayers; varying float vA; varying vec3 vC;
-vec3 pick(float k){ if(k<.5)return p0; if(k<1.5)return p1; if(k<2.5)return p2; if(k<3.5)return p3; return p4; }
+vec3 orbitRot(vec3 p){ float a=uTime*orbit.w*uOrbit; vec3 k=orbit.xyz;
+  return p*cos(a)+cross(k,p)*sin(a)+k*dot(k,p)*(1.-cos(a)); }
+vec3 pick(float k){ if(k<.5)return orbitRot(p0); if(k<1.5)return p1; if(k<2.5)return p2; if(k<3.5)return p3; return p4; }
 void main(){
   float seg=clamp(uP,0.,3.999); float k=floor(seg);
   float f=clamp((fract(seg)-.25-rnd*.25)/.45,0.,1.); f=f*f*(3.-2.*f);

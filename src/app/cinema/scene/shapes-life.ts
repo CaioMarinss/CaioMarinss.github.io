@@ -1,4 +1,4 @@
-import { SHAPE_COUNT, createBallSampler, mulberry32, type ShapeSet } from './shapes';
+import { SHAPE_COUNT, createBallSampler, mulberry32, type ShapeSet } from './shape-core';
 
 /** Number of orbiting clusters in the opening shape. */
 export const ORBIT_COUNT = 4;

@@ -14,6 +14,7 @@ import {
   viewChildren,
 } from '@angular/core';
 import { LanguageService } from '../content/language';
+import { PageService } from '../content/page';
 import { DisplayMode } from './display-mode';
 import { ProjectHover } from './project-hover';
 import type { CinemaScene, CinemaSceneOptions, ThreeModule } from './scene/cinema-scene';
@@ -217,6 +218,7 @@ export class CinemaCanvas {
     const director = inject(ScrollDirector);
     const loadThree = inject(THREE_LOADER);
     const loadScene = inject(CINEMA_SCENE_LOADER);
+    const pages = inject(PageService);
     const teardown: (() => void)[] = [];
     let destroyed = false;
 
@@ -255,7 +257,11 @@ export class CinemaCanvas {
       try {
         const [three, createScene] = await Promise.all([loadThree(), loadScene()]);
         if (destroyed) return;
-        scene = createScene(canvas, { mobile: win.matchMedia?.(MOBILE_QUERY).matches ?? false, three });
+        scene = createScene(canvas, {
+          mobile: win.matchMedia?.(MOBILE_QUERY).matches ?? false,
+          shapes: pages.page(),
+          three,
+        });
       } catch (error) {
         fail('cinema: 3D scene unavailable, using the static layout', error);
         return;

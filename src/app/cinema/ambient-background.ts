@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { PageService } from '../content/page';
 import { staticProgress } from './chapter-math';
 import { CINEMA_SCENE_LOADER, SceneHandle, THREE_LOADER } from './cinema-canvas';
 
@@ -69,6 +70,7 @@ export class AmbientBackground {
     const win = doc.defaultView;
     const loadThree = inject(THREE_LOADER);
     const loadScene = inject(CINEMA_SCENE_LOADER);
+    const pages = inject(PageService);
     const startDelay = inject(AMBIENT_START_DELAY);
     const teardown: (() => void)[] = [];
     let scene: SceneHandle | null = null;
@@ -97,7 +99,7 @@ export class AmbientBackground {
       try {
         const [three, createScene] = await Promise.all([loadThree(), loadScene()]);
         if (destroyed) return;
-        scene = createScene(canvas, { mobile: true, ambient: true, three });
+        scene = createScene(canvas, { mobile: true, ambient: true, shapes: pages.page(), three });
       } catch (error) {
         console.warn('ambient background unavailable', error);
         shutdown();
