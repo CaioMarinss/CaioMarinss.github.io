@@ -53,11 +53,21 @@ export interface StageEvent {
   readonly text: string;
 }
 
+export interface LifeContent {
+  readonly meta: { readonly title: string; readonly description: string };
+  readonly nav: Record<LifeChapterId, string>;
+  readonly intro: { readonly kicker: string; readonly title: readonly TitleLine[]; readonly lead: string };
+  readonly jiujitsu: { readonly kicker: string; readonly title: readonly TitleLine[]; readonly text: string; readonly facts: readonly string[] };
+  readonly music: { readonly kicker: string; readonly title: readonly TitleLine[]; readonly text: string; readonly playerLabel: string; readonly playerTitle: string };
+  readonly games: { readonly kicker: string; readonly title: readonly TitleLine[]; readonly items: readonly string[] };
+  readonly kart: { readonly kicker: string; readonly title: readonly TitleLine[]; readonly text: string; readonly back: string };
+}
+
 export interface SiteContent {
   readonly lang: Lang;
   readonly meta: { readonly title: string; readonly description: string };
   readonly nav: Record<ChapterId, string>;
-  readonly life: { readonly nav: Record<LifeChapterId, string> };
+  readonly life: LifeContent;
   readonly ui: {
     readonly resume: string;
     readonly resumeHref: string;
@@ -89,6 +99,7 @@ export interface SiteContent {
     readonly kicker: string;
     readonly title: readonly TitleLine[];
     readonly events: readonly StageEvent[];
+    readonly more: { readonly title: readonly TitleLine[]; readonly label: string };
   };
   readonly contact: {
     readonly kicker: string;

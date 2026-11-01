@@ -15,7 +15,46 @@ export const CONTENT_EN: SiteContent = {
     contact: 'Contact',
   },
   life: {
+    meta: {
+      title: 'Caio Marins — Beyond the code',
+      description:
+        'Outside of work: Jiu-Jitsu since childhood (purple belt and instructor), guitar, games and karting.',
+    },
     nav: { 'life-intro': 'Start', jiujitsu: 'Jiu-Jitsu', music: 'Music', games: 'Games', kart: 'Kart' },
+    intro: {
+      kicker: 'Outside work hours',
+      title: [{ words: [{ text: 'Beyond the' }] }, { words: [{ text: 'code', em: true }] }],
+      lead: 'When I close the editor, what is left is the mat, a guitar string, a controller in hand and the track.',
+    },
+    jiujitsu: {
+      kicker: 'Mat',
+      title: [{ words: [{ text: 'Since' }] }, { words: [{ text: 'childhood', em: true }] }],
+      text: 'I started training as a child, in a social project. Today I am a purple belt and I teach kids, giving back what the sport gave me.',
+      facts: ['Purple belt', 'Kids instructor'],
+    },
+    music: {
+      kicker: 'Guitar',
+      title: [{ words: [{ text: 'Rock and' }] }, { words: [{ text: 'melody', em: true }] }],
+      text: 'Classic rock and more melodic songs, like the intro of The Last of Us. It is what I enjoy playing and listening to most.',
+      playerLabel: 'Listening',
+      playerTitle: "Caio's playlist on Spotify",
+    },
+    games: {
+      kicker: 'Controller',
+      title: [{ words: [{ text: 'On the' }] }, { words: [{ text: 'controller', em: true }] }],
+      items: [
+        'The Last of Us',
+        'Battlefield 6',
+        'Call of Duty: Black Ops II',
+        'Call of Duty: Modern Warfare 3',
+      ],
+    },
+    kart: {
+      kicker: 'Track',
+      title: [{ words: [{ text: 'Fast' }] }, { words: [{ text: 'lap', em: true }] }],
+      text: 'I love driving karts: the same pursuit of the perfect lap, just off the screen.',
+      back: 'Back to home',
+    },
   },
   ui: {
     resume: 'Résumé',
@@ -129,6 +168,10 @@ export const CONTENT_EN: SiteContent = {
         text: 'I told the story of my path into technology.',
       },
     ],
+    more: {
+      title: [{ words: [{ text: 'And outside' }] }, { words: [{ text: 'work?', em: true }] }],
+      label: 'Get to know my life outside code',
+    },
   },
   contact: {
     kicker: 'Contact',

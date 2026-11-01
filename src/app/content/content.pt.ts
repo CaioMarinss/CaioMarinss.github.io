@@ -15,7 +15,46 @@ export const CONTENT_PT: SiteContent = {
     contact: 'Contato',
   },
   life: {
+    meta: {
+      title: 'Caio Marins — Além do código',
+      description:
+        'Fora do trabalho: Jiu-Jitsu desde criança (faixa roxa e professor), violão, games e kart.',
+    },
     nav: { 'life-intro': 'Início', jiujitsu: 'Jiu-Jitsu', music: 'Música', games: 'Games', kart: 'Kart' },
+    intro: {
+      kicker: 'Fora do expediente',
+      title: [{ words: [{ text: 'Além do' }] }, { words: [{ text: 'código', em: true }] }],
+      lead: 'Quando fecho o editor, sobra tatame, corda de violão, controle na mão e pista.',
+    },
+    jiujitsu: {
+      kicker: 'Tatame',
+      title: [{ words: [{ text: 'Desde' }] }, { words: [{ text: 'criança', em: true }] }],
+      text: 'Comecei a treinar ainda criança, num projeto social. Hoje sou faixa roxa e dou aula para crianças, devolvendo o que o esporte me deu.',
+      facts: ['Faixa roxa', 'Professor de crianças'],
+    },
+    music: {
+      kicker: 'Violão',
+      title: [{ words: [{ text: 'Rock e' }] }, { words: [{ text: 'melodia', em: true }] }],
+      text: 'Rock clássico e músicas mais melódicas, como a introdução de The Last of Us. É o que mais gosto de tocar e de ouvir.',
+      playerLabel: 'Ouvindo',
+      playerTitle: 'Playlist do Caio no Spotify',
+    },
+    games: {
+      kicker: 'Controle',
+      title: [{ words: [{ text: 'No' }] }, { words: [{ text: 'controle', em: true }] }],
+      items: [
+        'The Last of Us',
+        'Battlefield 6',
+        'Call of Duty: Black Ops II',
+        'Call of Duty: Modern Warfare 3',
+      ],
+    },
+    kart: {
+      kicker: 'Pista',
+      title: [{ words: [{ text: 'Volta' }] }, { words: [{ text: 'rápida', em: true }] }],
+      text: 'Adoro andar de kart: a mesma busca pela volta perfeita, só que fora da tela.',
+      back: 'Voltar para a home',
+    },
   },
   ui: {
     resume: 'Currículo',
@@ -129,6 +168,10 @@ export const CONTENT_PT: SiteContent = {
         text: 'Contei minha trajetória até a tecnologia.',
       },
     ],
+    more: {
+      title: [{ words: [{ text: 'E fora do' }] }, { words: [{ text: 'trabalho?', em: true }] }],
+      label: 'Conheça minha vida fora do código',
+    },
   },
   contact: {
     kicker: 'Contato',
