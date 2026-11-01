@@ -1,6 +1,7 @@
 import { Injectable, Signal, computed, signal } from '@angular/core';
 import { CONTENT } from './content';
-import { ChapterId, Lang, SiteContent } from './content.types';
+import { AnyChapterId, Lang, SiteContent } from './content.types';
+import { PAGE_PATHS, PageId } from './page';
 
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
@@ -17,8 +18,8 @@ export class LanguageService {
    * Path-qualified so links resolve correctly under <base href="/"> (a bare "#id" would point at
    * the PT home from /en/). Ends in a slash to match the prerendered en/index.html without a redirect.
    */
-  pathFor(lang: Lang, fragment?: ChapterId): string {
-    const base = lang === 'en' ? '/en/' : '/';
+  pathFor(lang: Lang, fragment?: AnyChapterId, page: PageId = 'home'): string {
+    const base = PAGE_PATHS[page][lang];
     return fragment ? `${base}#${fragment}` : base;
   }
 }

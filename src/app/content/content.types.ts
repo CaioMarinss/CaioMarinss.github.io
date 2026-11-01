@@ -2,6 +2,9 @@ export type Lang = 'pt' | 'en';
 
 export const CHAPTER_IDS = ['intro', 'experience', 'projects', 'stage', 'contact'] as const;
 export type ChapterId = (typeof CHAPTER_IDS)[number];
+export const LIFE_CHAPTER_IDS = ['life-intro', 'jiujitsu', 'music', 'games', 'kart'] as const;
+export type LifeChapterId = (typeof LIFE_CHAPTER_IDS)[number];
+export type AnyChapterId = ChapterId | LifeChapterId;
 
 export interface TitleWord {
   readonly text: string;
