@@ -14,6 +14,9 @@ export const CONTENT_EN: SiteContent = {
     stage: 'Stage',
     contact: 'Contact',
   },
+  life: {
+    nav: { 'life-intro': 'Start', jiujitsu: 'Jiu-Jitsu', music: 'Music', games: 'Games', kart: 'Kart' },
+  },
   ui: {
     resume: 'Résumé',
     resumeHref: '/cv/caio-marins-cv-en.pdf',

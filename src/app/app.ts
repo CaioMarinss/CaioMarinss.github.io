@@ -6,6 +6,7 @@ import { filter } from 'rxjs';
 import { Cursor } from './cinema/cursor';
 import { DisplayMode } from './cinema/display-mode';
 import { LanguageService } from './content/language';
+import { PageService } from './content/page';
 import { Header } from './layout/header';
 
 const BARE_PATHS = /^\/(curriculo|en\/resume)\/?(?:[?#].*)?$/;
@@ -32,9 +33,10 @@ export class App {
    */
   protected readonly chrome = signal(!BARE_PATHS.test(inject(Location).path()));
   private readonly language = inject(LanguageService);
+  private readonly pages = inject(PageService);
   protected readonly content = this.language.content;
   /** Path-qualified (see LanguageService.pathFor) so the skip link stays on /en/. */
-  protected readonly skipHref = computed(() => this.language.pathFor(this.language.lang(), 'intro'));
+  protected readonly skipHref = computed(() => this.language.pathFor(this.language.lang(), this.pages.chapterIds()[0], this.pages.page()));
   private readonly display = inject(DisplayMode);
   /** Client-only: set after hydration so server and client render the same tree. */
   private readonly finePointer = signal(false);

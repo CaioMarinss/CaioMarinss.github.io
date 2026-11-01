@@ -1,6 +1,7 @@
 import { DOCUMENT, Injectable, PLATFORM_ID, Signal, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { CHAPTER_IDS, ChapterId } from '../content/content.types';
+import { AnyChapterId } from '../content/content.types';
+import { PageService } from '../content/page';
 import { chapterScrollTop, isChapterActive, nearestChapter, ratioToProgress } from './chapter-math';
 import { DisplayMode } from './display-mode';
 
@@ -10,8 +11,6 @@ const SCROLL_LERP = 0.06;
 const STATIC_READING_LINE = 0.35;
 
 type FrameCallback = (p: number) => void;
-
-const isChapterId = (value: string): value is ChapterId => (CHAPTER_IDS as readonly string[]).includes(value);
 
 /**
  * Drives the page from native scrolling. In cinema mode a rAF loop eases the scroll ratio into
@@ -24,6 +23,7 @@ export class ScrollDirector {
   private readonly doc = inject(DOCUMENT);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly display = inject(DisplayMode);
+  private readonly pages = inject(PageService);
 
   private readonly active = signal(0);
   readonly activeChapter: Signal<number> = this.active.asReadonly();
@@ -49,7 +49,7 @@ export class ScrollDirector {
       this.pending = index;
       win.scrollTo({ top: chapterScrollTop(index, this.maxScroll()), behavior });
     } else {
-      this.doc.getElementById(CHAPTER_IDS[index])?.scrollIntoView({ behavior });
+      this.doc.getElementById(this.pages.chapterIds()[index])?.scrollIntoView({ behavior });
     }
   }
 
@@ -62,7 +62,9 @@ export class ScrollDirector {
 
     // Chapter ids are ASCII, so the raw fragment is compared as-is (decoding could throw on malformed input).
     const hash = win.location.hash.slice(1);
-    if (isChapterId(hash)) this.goTo(CHAPTER_IDS.indexOf(hash), 'auto');
+    const ids: readonly string[] = this.pages.chapterIds();
+    const hashIndex = ids.indexOf(hash);
+    if (hashIndex >= 0) this.goTo(hashIndex, 'auto');
 
     if (this.isCinema()) {
       // Start settled on the current scroll position (e.g. after a deep link) instead of easing from 0.

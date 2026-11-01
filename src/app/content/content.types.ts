@@ -57,6 +57,7 @@ export interface SiteContent {
   readonly lang: Lang;
   readonly meta: { readonly title: string; readonly description: string };
   readonly nav: Record<ChapterId, string>;
+  readonly life: { readonly nav: Record<LifeChapterId, string> };
   readonly ui: {
     readonly resume: string;
     readonly resumeHref: string;

@@ -1,14 +1,14 @@
 @let c = content();
 <header class="hdr">
-  <a class="brand" [href]="chapterHrefs()[0]" (click)="navigate($event, 0)">Caio Marins<em>full stack</em></a>
+  <a class="brand" [href]="brandHref()" (click)="onBrand($event)">Caio Marins<em>full stack</em></a>
   <nav class="nav">
-    @for (id of chapters; track id; let i = $index) {
+    @for (id of chapters(); track id; let i = $index) {
       <a
         [href]="chapterHrefs()[i]"
         [class.on]="active() === i"
         [attr.aria-current]="active() === i ? 'true' : null"
         (click)="navigate($event, i)"
-      >{{ c.nav[id] }}</a>
+      >{{ label(id) }}</a>
     }
   </nav>
   <div class="actions">
@@ -23,7 +23,7 @@
 </header>
 <div class="hline" aria-hidden="true"></div>
 <div class="progress" aria-hidden="true">
-  @for (id of chapters; track id) {
+  @for (id of chapters(); track id) {
     <span><i></i></span>
   }
 </div>

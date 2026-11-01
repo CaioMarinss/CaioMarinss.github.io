@@ -14,6 +14,9 @@ export const CONTENT_PT: SiteContent = {
     stage: 'Palco',
     contact: 'Contato',
   },
+  life: {
+    nav: { 'life-intro': 'Início', jiujitsu: 'Jiu-Jitsu', music: 'Música', games: 'Games', kart: 'Kart' },
+  },
   ui: {
     resume: 'Currículo',
     resumeHref: '/cv/caio-marins-cv-pt.pdf',
