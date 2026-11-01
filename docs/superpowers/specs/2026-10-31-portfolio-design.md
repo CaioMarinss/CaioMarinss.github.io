@@ -87,7 +87,7 @@ atraso aleatório por partícula e um leve "estouro" no meio da transição:
 
 | Capítulo | Forma | Significado |
 |---|---|---|
-| 0 Abertura | Esfera | O Caio |
+| 0 Abertura | "</>" | Programação |
 | 1 Núclea | Rede: ~9 nós ligados por arestas | Integrações / mensageria |
 | 2 Projetos | 3 camadas horizontais + colunas ligando | Front → API → banco |
 | 3 Palco | Anel no chão + feixe de luz em cone | Palco / holofote |
