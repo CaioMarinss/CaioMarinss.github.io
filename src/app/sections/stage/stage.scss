@@ -119,6 +119,18 @@
     bottom: 28px;
     left: calc(var(--col) - 8px);
     width: calc(2 * (var(--col) - 40px) + 48px);
+    // the global cinema .fade shorthand would drop the padding transition
+    transition:
+      opacity 0.9s cubic-bezier(0.25, 1, 0.5, 1),
+      transform 0.9s cubic-bezier(0.25, 1, 0.5, 1),
+      filter 0.9s,
+      padding var(--dur) var(--ease);
+  }
+
+  // hover must not wait for the .d3 reveal delay
+  .stage.active .more.d3:hover,
+  .stage.active .more.d3:focus-visible {
+    transition-delay: 0s;
   }
 
   @include mobile {
@@ -132,6 +144,11 @@
     .more {
       right: 0;
       width: auto;
+
+      .big {
+        font-size: clamp(1.4rem, 7vw, 1.8rem);
+        white-space: nowrap;
+      }
     }
 
     .events {

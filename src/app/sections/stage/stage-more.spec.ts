@@ -27,7 +27,13 @@ describe('stage "more" link', () => {
   it('has an accessible label and no heading inside the link', async () => {
     const root = await renderHome('pt');
     const link = root.querySelector('#stage a.more');
-    expect(link?.getAttribute('aria-label')).toBe(CONTENT.pt.stage.more.label);
+    const label = link?.getAttribute('aria-label') ?? '';
+    const visible = CONTENT.pt.stage.more.title
+      .flatMap((line) => line.words.map((word) => word.text))
+      .join(' ');
+    expect(label).toBe(CONTENT.pt.stage.more.label);
+    // WCAG 2.5.3: the accessible name contains the visible text
+    expect(label.startsWith(visible)).toBe(true);
     expect(link?.querySelector('h1, h2, h3')).toBeNull();
     expect(link?.querySelector('.big i')).not.toBeNull();
   });

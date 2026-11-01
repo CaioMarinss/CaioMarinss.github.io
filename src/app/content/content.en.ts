@@ -170,7 +170,7 @@ export const CONTENT_EN: SiteContent = {
     ],
     more: {
       title: [{ words: [{ text: 'And outside' }] }, { words: [{ text: 'work?', em: true }] }],
-      label: 'Get to know my life outside code',
+      label: 'And outside work? Get to know my life outside code',
     },
   },
   contact: {

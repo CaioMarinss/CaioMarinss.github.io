@@ -170,7 +170,7 @@ export const CONTENT_PT: SiteContent = {
     ],
     more: {
       title: [{ words: [{ text: 'E fora do' }] }, { words: [{ text: 'trabalho?', em: true }] }],
-      label: 'Conheça minha vida fora do código',
+      label: 'E fora do trabalho? Conheça minha vida fora do código',
     },
   },
   contact: {
