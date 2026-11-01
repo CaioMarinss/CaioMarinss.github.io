@@ -11,4 +11,19 @@
       </li>
     }
   </ol>
+  <a class="more fade d3" [href]="lifeHref()" [attr.aria-label]="c.stage.more.label">
+    <span class="big">
+      @for (line of c.stage.more.title; track $index) {
+        @for (word of line.words; track $index) {
+          @if (word.em) {
+            <i>{{ word.text }}</i>
+          } @else {
+            {{ word.text }}
+          }
+          {{ ' ' }}
+        }
+      }
+    </span>
+    <span class="circ" aria-hidden="true">↗</span>
+  </a>
 </section>

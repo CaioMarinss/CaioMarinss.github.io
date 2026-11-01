@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { LanguageService } from '../../content/language';
+import { PAGE_PATHS } from '../../content/page';
 import { TitleWords } from '../title-words';
 
 @Component({
@@ -10,5 +11,7 @@ import { TitleWords } from '../title-words';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StageSection {
-  protected readonly content = inject(LanguageService).content;
+  private readonly language = inject(LanguageService);
+  protected readonly content = this.language.content;
+  protected readonly lifeHref = computed(() => PAGE_PATHS.life[this.language.lang()]);
 }
