@@ -214,6 +214,9 @@ function beltPoint(i: number, random: () => number): Vec3 {
  * starting on the start line: x east, z south (a north-up map), longest half-extent 2. From index 0:
  * pit straight, S do Senna, Curva do Sol, Reta Oposta, Descida do Lago, Ferradura, Laranjinha,
  * Pinheirinho, Bico de Pato, Mergulho, Juncao and the Subida dos Boxes.
+ *
+ * Track data derived from https://github.com/bacinger/f1-circuits
+ * Copyright (c) 2019-2025 Tomislav Bacinger. Licensed under the MIT License.
  */
 const TRACK_CONTROL: readonly (readonly [number, number])[] = [
   [-1.04, 0.9], [-0.98, 1.12], [-0.92, 1.34], [-0.86, 1.57], [-0.8, 1.79], [-0.71, 2],
