@@ -86,7 +86,7 @@ export const CONTENT_PT: SiteContent = {
     paragraph:
       'Na Núclea, sustento sistemas que rodam todo dia: webservices com XML/SOAP, troca de arquivos, APIs e mensageria com IBM MQ sobre DB2 e AWS.',
     stackLabel: 'Stack do dia a dia',
-    stack: ['Java', 'Wicket', 'WebSphere', 'IBM DB2', 'IBM MQ', 'AWS', 'XML / SOAP', 'GitHub Actions'],
+    stack: ['Java', 'Angular', 'Wicket', 'WebSphere', 'IBM DB2', 'IBM MQ', 'AWS', 'XML / SOAP', 'GitHub Actions'],
   },
   projects: {
     kicker: 'Projetos',

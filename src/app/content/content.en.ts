@@ -86,7 +86,7 @@ export const CONTENT_EN: SiteContent = {
     paragraph:
       'At Núclea, I maintain systems that run every day: XML/SOAP web services, file exchange, APIs and IBM MQ messaging on top of DB2 and AWS.',
     stackLabel: 'Daily stack',
-    stack: ['Java', 'Wicket', 'WebSphere', 'IBM DB2', 'IBM MQ', 'AWS', 'XML / SOAP', 'GitHub Actions'],
+    stack: ['Java', 'Angular', 'Wicket', 'WebSphere', 'IBM DB2', 'IBM MQ', 'AWS', 'XML / SOAP', 'GitHub Actions'],
   },
   projects: {
     kicker: 'Projects',
