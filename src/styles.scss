@@ -411,9 +411,9 @@ html.is-cinema:not(.is-resume) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html:not(.is-cinema) *,
+  html:not(.is-cinema) *::before,
+  html:not(.is-cinema) *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }

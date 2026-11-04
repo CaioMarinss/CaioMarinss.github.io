@@ -15,8 +15,8 @@ function fakeWin(reduced: boolean, ctx: unknown, desktop = true): Window {
 }
 
 describe('supportsCinema', () => {
-  it('is false with reduced motion', () => {
-    expect(supportsCinema(fakeWin(true, {}))).toBe(false);
+  it('ignores reduced motion', () => {
+    expect(supportsCinema(fakeWin(true, {}))).toBe(true);
   });
   it('is false without WebGL context', () => {
     expect(supportsCinema(fakeWin(false, null))).toBe(false);

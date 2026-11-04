@@ -27,12 +27,11 @@ export function chapterFill(p: number, index: number): number {
 
 export const CINEMA_SCREEN = '(min-width: 861px) and (hover: hover) and (pointer: fine)';
 
-/** Cinema mode needs motion allowed and a WebGL context. Keep in sync with the inline script in index.html. */
+/** Cinema mode needs a desktop screen and a WebGL context. Keep in sync with the inline script in index.html. */
 export function supportsCinema(win: Window): boolean {
   // Desktop only: on phones and tablets the pinned 620vh scroll and the WebGL scene feel sluggish
   // under touch, so they get the static layout with native scrolling (and never load three.js).
   if (!win.matchMedia(CINEMA_SCREEN).matches) return false;
-  if (win.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
   const canvas = win.document.createElement('canvas');
   const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
   return gl !== null;
