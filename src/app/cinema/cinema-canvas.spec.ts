@@ -1,6 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { Mocked, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CINEMA_SCENE_LOADER, CinemaCanvas, previewPosition, SceneHandle, THREE_LOADER } from './cinema-canvas';
+import {
+  CANVAS2D_SCENE_LOADER,
+  CINEMA_SCENE_LOADER,
+  Canvas2dSceneFactory,
+  CinemaCanvas,
+  previewPosition,
+  SceneHandle,
+  THREE_LOADER,
+  WEBGL_SUPPORT,
+} from './cinema-canvas';
 import { DisplayMode } from './display-mode';
 import { ProjectHover } from './project-hover';
 import { ScrollDirector } from './scroll-director';
@@ -34,12 +43,26 @@ const fakeDirector: Pick<ScrollDirector, 'onFrame'> = {
   },
 };
 
+interface MountOptions {
+  webgl?: boolean;
+  canvas2d?: () => Promise<Canvas2dSceneFactory>;
+}
+
 /** Lets the afterNextRender hook run and the (fake) dynamic import settle. */
-async function mount(loader: () => Promise<ThreeModule>, factory: () => SceneHandle) {
+async function mount(
+  loader: () => Promise<ThreeModule>,
+  factory: () => SceneHandle,
+  {
+    webgl = true,
+    canvas2d = () => Promise.reject(new Error('2d chunk failed')),
+  }: MountOptions = {},
+) {
   TestBed.configureTestingModule({
     providers: [
       { provide: THREE_LOADER, useValue: loader },
       { provide: CINEMA_SCENE_LOADER, useValue: () => Promise.resolve(factory) },
+      { provide: CANVAS2D_SCENE_LOADER, useValue: canvas2d },
+      { provide: WEBGL_SUPPORT, useValue: () => webgl },
       { provide: ScrollDirector, useValue: fakeDirector },
     ],
   });
@@ -64,6 +87,73 @@ describe('CinemaCanvas', () => {
     vi.restoreAllMocks();
   });
 
+  it('uses the WebGL scene when WebGL is available, without loading the 2D scene', async () => {
+    const canvas2d = vi.fn(() => Promise.resolve(fakeScene));
+    const fixture = await mount(() => Promise.resolve({} as ThreeModule), fakeScene, { canvas2d });
+
+    expect(TestBed.inject(DisplayMode).mode()).toBe('cinema');
+    expect((fixture.nativeElement as HTMLElement).dataset['renderer']).toBe('webgl');
+    expect(canvas2d).not.toHaveBeenCalled();
+  });
+
+  it('uses the Canvas 2D scene without WebGL, never loading three', async () => {
+    const loader = vi.fn(() => Promise.resolve({} as ThreeModule));
+    const scene = fakeScene();
+    const create = vi.fn<Canvas2dSceneFactory>(() => scene);
+    const fixture = await mount(loader, fakeScene, {
+      webgl: false,
+      canvas2d: () => Promise.resolve(create),
+    });
+
+    expect(TestBed.inject(DisplayMode).mode()).toBe('cinema');
+    expect((fixture.nativeElement as HTMLElement).dataset['renderer']).toBe('canvas2d');
+    expect(loader).not.toHaveBeenCalled();
+    expect(create).toHaveBeenCalledWith(
+      expect.any(HTMLCanvasElement),
+      expect.objectContaining({ mobile: false }),
+    );
+    frame!(1);
+    expect(scene.render).toHaveBeenCalledTimes(1);
+  });
+
+  it('falls back to the Canvas 2D scene when the WebGL scene throws', async () => {
+    const scene = fakeScene();
+    const fixture = await mount(
+      () => Promise.resolve({} as ThreeModule),
+      () => {
+        throw new Error('no webgl');
+      },
+      { canvas2d: () => Promise.resolve(() => scene) },
+    );
+
+    expect(TestBed.inject(DisplayMode).mode()).toBe('cinema');
+    expect((fixture.nativeElement as HTMLElement).dataset['renderer']).toBe('canvas2d');
+  });
+
+  it('falls back to static when the 2D scene reports it is too slow', async () => {
+    const scene = fakeScene();
+    let tooSlow: (() => void) | undefined;
+    await mount(() => Promise.resolve({} as ThreeModule), fakeScene, {
+      webgl: false,
+      canvas2d: () =>
+        Promise.resolve((_canvas, opts) => {
+          tooSlow = opts.onTooSlow;
+          return scene;
+        }),
+    });
+
+    tooSlow!();
+
+    expect(TestBed.inject(DisplayMode).mode()).toBe('static');
+    expect(scene.dispose).toHaveBeenCalled();
+  });
+
+  it('falls back to static when no scene can be created', async () => {
+    await mount(() => Promise.resolve({} as ThreeModule), fakeScene, { webgl: false });
+
+    expect(TestBed.inject(DisplayMode).mode()).toBe('static');
+  });
+
   it('falls back to static when the three chunk fails to load', async () => {
     const factory = vi.fn(fakeScene);
     await mount(() => Promise.reject(new Error('chunk failed')), factory);
@@ -85,7 +175,10 @@ describe('CinemaCanvas', () => {
 
   it('falls back to static and disposes the scene when the WebGL context is lost', async () => {
     const scene = fakeScene();
-    const fixture = await mount(() => Promise.resolve({} as ThreeModule), () => scene);
+    const fixture = await mount(
+      () => Promise.resolve({} as ThreeModule),
+      () => scene,
+    );
     expect(TestBed.inject(DisplayMode).mode()).toBe('cinema');
     expect(scene.resize).toHaveBeenCalled();
 
@@ -98,7 +191,10 @@ describe('CinemaCanvas', () => {
 
   it('shows the layer labels while Almeida is hovered', async () => {
     const scene = fakeScene();
-    const fixture = await mount(() => Promise.resolve({} as ThreeModule), () => scene);
+    const fixture = await mount(
+      () => Promise.resolve({} as ThreeModule),
+      () => scene,
+    );
     const host = fixture.nativeElement as HTMLElement;
 
     TestBed.inject(ProjectHover).hovered.set('almeida');
@@ -119,7 +215,10 @@ describe('CinemaCanvas', () => {
 
   it('renders the scene on each director frame', async () => {
     const scene = fakeScene();
-    await mount(() => Promise.resolve({} as ThreeModule), () => scene);
+    await mount(
+      () => Promise.resolve({} as ThreeModule),
+      () => scene,
+    );
 
     frame!(1.5);
 
@@ -129,7 +228,10 @@ describe('CinemaCanvas', () => {
 
   it('skips the label anchors while the labels are off', async () => {
     const scene = fakeScene();
-    const fixture = await mount(() => Promise.resolve({} as ThreeModule), () => scene);
+    const fixture = await mount(
+      () => Promise.resolve({} as ThreeModule),
+      () => scene,
+    );
 
     frame!(2);
     expect(scene.getLayerAnchors).not.toHaveBeenCalled();
@@ -144,7 +246,10 @@ describe('CinemaCanvas', () => {
 
   it('stops listening after destroy', async () => {
     const scene = fakeScene();
-    const fixture = await mount(() => Promise.resolve({} as ThreeModule), () => scene);
+    const fixture = await mount(
+      () => Promise.resolve({} as ThreeModule),
+      () => scene,
+    );
     fixture.destroy();
     vi.clearAllMocks();
 
@@ -158,7 +263,10 @@ describe('CinemaCanvas', () => {
 
   it('disposes the scene on destroy', async () => {
     const scene = fakeScene();
-    const fixture = await mount(() => Promise.resolve({} as ThreeModule), () => scene);
+    const fixture = await mount(
+      () => Promise.resolve({} as ThreeModule),
+      () => scene,
+    );
     fixture.destroy();
     expect(scene.dispose).toHaveBeenCalled();
   });

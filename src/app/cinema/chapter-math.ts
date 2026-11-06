@@ -27,14 +27,20 @@ export function chapterFill(p: number, index: number): number {
 
 export const CINEMA_SCREEN = '(min-width: 861px) and (hover: hover) and (pointer: fine)';
 
-/** Cinema mode needs a desktop screen and a WebGL context. Keep in sync with the inline script in index.html. */
+export function hasWebGL(doc: Document): boolean {
+  const canvas = doc.createElement('canvas');
+  return (canvas.getContext('webgl2') ?? canvas.getContext('webgl')) !== null;
+}
+
+/**
+ * Cinema mode needs a desktop screen and a drawing context: WebGL, or Canvas 2D when WebGL is
+ * missing. Keep in sync with the inline script in index.html.
+ */
 export function supportsCinema(win: Window): boolean {
   // Desktop only: on phones and tablets the pinned 620vh scroll and the WebGL scene feel sluggish
   // under touch, so they get the static layout with native scrolling (and never load three.js).
   if (!win.matchMedia(CINEMA_SCREEN).matches) return false;
-  const canvas = win.document.createElement('canvas');
-  const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
-  return gl !== null;
+  return hasWebGL(win.document) || win.document.createElement('canvas').getContext('2d') !== null;
 }
 
 /**
@@ -42,7 +48,10 @@ export function supportsCinema(win: Window): boolean {
  * Equals `i` while chapter `i` is centred on the line and moves linearly between neighbours,
  * so the background morphs in step with native scrolling. Clamped to 0..CHAPTER_COUNT-1.
  */
-export function staticProgress(boxes: readonly { top: number; height: number }[], line: number): number {
+export function staticProgress(
+  boxes: readonly { top: number; height: number }[],
+  line: number,
+): number {
   if (!boxes.length) return 0;
   let p = 0;
   boxes.forEach((box, i) => {

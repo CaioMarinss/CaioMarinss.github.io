@@ -4,11 +4,11 @@ import { DisplayMode } from './display-mode';
 import { readFileSync } from 'node:fs';
 import { CINEMA_SCREEN, supportsCinema } from './chapter-math';
 
-function fakeWin(reduced: boolean, ctx: unknown, desktop = true): Window {
+function fakeWin(reduced: boolean, ctx: unknown, desktop = true, ctx2d: unknown = ctx): Window {
   const win = {
     matchMedia: (q: string) => ({ matches: q.includes('reduce') ? reduced : desktop }),
     document: {
-      createElement: () => ({ getContext: () => ctx }),
+      createElement: () => ({ getContext: (type: string) => (type === '2d' ? ctx2d : ctx) }),
     },
   };
   return win as unknown as Window;
@@ -18,8 +18,15 @@ describe('supportsCinema', () => {
   it('ignores reduced motion', () => {
     expect(supportsCinema(fakeWin(true, {}))).toBe(true);
   });
-  it('is false without WebGL context', () => {
+  it('is false without any drawing context', () => {
     expect(supportsCinema(fakeWin(false, null))).toBe(false);
+  });
+  it('is true without WebGL when Canvas 2D works', () => {
+    expect(supportsCinema(fakeWin(false, null, true, {}))).toBe(true);
+  });
+  it('accepts Canvas 2D in the inline detection script too', () => {
+    const html = readFileSync('src/index.html', 'utf8');
+    expect(html).toContain(`getContext('2d')`);
   });
   it('is true with a context', () => {
     expect(supportsCinema(fakeWin(false, {}))).toBe(true);

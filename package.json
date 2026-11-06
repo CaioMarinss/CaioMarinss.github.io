@@ -9,7 +9,8 @@
     "test": "ng test",
     "images": "node scripts/build-images.mjs",
     "shots": "node scripts/capture-shots.mjs",
-    "cv": "node scripts/generate-cv.mjs"
+    "cv": "node scripts/generate-cv.mjs",
+    "e2e": "node e2e/modes.mjs"
   },
   "private": true,
   "packageManager": "npm@10.9.8",

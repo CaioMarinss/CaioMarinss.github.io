@@ -5,7 +5,7 @@
   <script>
     try {
       var d = document, c = d.createElement('canvas');
-      if (!/^\/(curriculo|en\/resume)\/?$/.test(location.pathname) && matchMedia('(min-width: 861px) and (hover: hover) and (pointer: fine)').matches && (c.getContext('webgl2') || c.getContext('webgl'))) {
+      if (!/^\/(curriculo|en\/resume)\/?$/.test(location.pathname) && matchMedia('(min-width: 861px) and (hover: hover) and (pointer: fine)').matches && (c.getContext('webgl2') || c.getContext('webgl') || d.createElement('canvas').getContext('2d'))) {
         d.documentElement.classList.add('is-cinema');
         // Safety net: cinema CSS hides copy until the app runs. If the bundle never boots
         // (network error, blocker, bootstrap crash), drop back to the static layout.

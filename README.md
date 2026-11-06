@@ -34,7 +34,7 @@ src/styles/_mixins.scss  breakpoint mobile (860px), container, rótulo mono
 scripts/                 geração de imagens, capturas e PDFs
 ```
 
-O modo cinema roda só no desktop (tela > 860px com mouse). Celulares e tablets, ausência de WebGL ou falha da cena 3D usam o modo estático (rolagem normal, sem baixar o Three.js).
+O modo cinema roda só no desktop (tela > 860px com mouse). Sem WebGL, ele usa uma cena em Canvas 2D (mesmas partículas, curvas de nível simplificadas, sem baixar o Three.js) que reduz a qualidade sozinha se o FPS cair. Celulares e tablets, ou falha das duas cenas, usam o modo estático (rolagem normal).
 Fontes auto-hospedadas via @fontsource (Instrument Serif, Manrope, JetBrains Mono); nenhuma chamada a Google Fonts.
 
 ## Regerar imagens e PDFs

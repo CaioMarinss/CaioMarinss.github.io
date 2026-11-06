@@ -1,5 +1,19 @@
 import type * as THREE from 'three';
 import { BG_FRAGMENT, BG_VERTEX, PARTICLE_FRAGMENT, PARTICLE_VERTEX } from './shaders';
+import {
+  CAMERA_FOV,
+  CAMERA_Z,
+  LAYERS_LERP,
+  MOBILE_BREAKPOINT,
+  ORBIT_STRENGTH,
+  POINTER_LERP,
+  Profile,
+  SPIN_DAMPING,
+  SPIN_MAX,
+  SHAPE_SEED,
+  framePose,
+  lerp,
+} from './framing';
 import { LAYER_Y, SHAPE_COUNT, ShapeSetId, generateShapes } from './shapes';
 
 export type ThreeModule = typeof THREE;
@@ -23,8 +37,6 @@ export interface ScreenPoint {
   readonly y: number;
 }
 
-/** Prototype constants. */
-type Profile = 'desktop' | 'mobile' | 'ambient';
 const PARTICLES = { desktop: 9000, mobile: 5000, ambient: 3000 } as const;
 const MAX_DPR = { desktop: 2, mobile: 1.5, ambient: 1 } as const;
 const POINT_SIZE = { desktop: 42, mobile: 34, ambient: 30 } as const;
@@ -32,53 +44,8 @@ const POINT_SIZE = { desktop: 42, mobile: 34, ambient: 30 } as const;
 const OBJECT_SCALE = { desktop: 1, mobile: 1, ambient: 0.6 } as const;
 /** Ambient: size on the opening screen, as a fraction of the full size reached by chapter 1. */
 const AMBIENT_SMALL = 0.32;
-/** Spin impulse decay per frame (inertia after a flick) and its cap in rad/s. */
-const SPIN_DAMPING = 0.92;
-const SPIN_MAX = 6;
 /** Ambient entrance: the cloud gathers and grows over this many seconds. */
 const ENTRANCE_S = 1.6;
-const SHAPE_SEED = 20251031;
-const POINTER_LERP = 0.05;
-const LAYERS_LERP = 0.08;
-const MOBILE_BREAKPOINT = 860;
-/** Per-chapter framing: where the object sits (world units) to make room for the text. */
-const FRAME_X: Record<ShapeSetId, Record<Profile, readonly number[]>> = {
-  home: {
-    desktop: [1.55, 1.25, 1.35, -1.6, 0],
-    mobile: [0, 0, 0, 0, 0],
-    ambient: [0.78, 0, 0, 0, 0],
-  },
-  life: {
-    desktop: [1.55, 1.35, 1.75, 1.6, 1.35],
-    mobile: [0, 0, 0, 0, 0],
-    ambient: [0.78, 0, 0, 0, 0],
-  },
-};
-const FRAME_Y: Record<ShapeSetId, Record<Profile, readonly number[]>> = {
-  home: {
-    desktop: [0.05, 0.25, -0.25, 0, 0.15],
-    mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
-    ambient: [1.28, 0, 0, 0, 0.1],
-  },
-  life: {
-    desktop: [0.05, 0.1, 0, 0, 0],
-    mobile: [0.9, 0.9, 0.9, 0.7, 0.35],
-    // ambient kart: low, in the room left below the last chapter's copy
-    ambient: [1.28, 0, 0, 0, -0.9],
-  },
-};
-/**
- * Extra pitch toward the camera per chapter (rad), added to the base tilt. The life kart track lies
- * flat, so it leans forward to show its layout from any Y angle; home adds nothing.
- */
-const TILT_X: Record<ShapeSetId, readonly number[]> = {
-  home: [0, 0, 0, 0, 0],
-  life: [0, 0, 0, 0, 0.55],
-};
-/** Strength of the life opening's orbiting clusters per device profile; the ambient layer is calmer. */
-const ORBIT_STRENGTH = { desktop: 1, mobile: 1, ambient: 0.6 } as const;
-
-const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 
 /**
  * The WebGL scene: a full-screen topographic background plus a particle cloud morphing between one
@@ -139,8 +106,8 @@ export class CinemaScene {
     if (this.ambient) this.renderer.setClearColor(0x000000, 0);
     this.renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, MAX_DPR[device]));
     this.scene = new T.Scene();
-    this.camera = new T.PerspectiveCamera(42, 1, 0.1, 100);
-    this.camera.position.set(0, 0, 7);
+    this.camera = new T.PerspectiveCamera(CAMERA_FOV, 1, 0.1, 100);
+    this.camera.position.set(0, 0, CAMERA_Z);
     this.scene.add(this.camera);
 
     // Background: topographic contour field, glued to the camera.
@@ -167,7 +134,8 @@ export class CinemaScene {
     const { shapes, rnd, orbit } = generateShapes(PARTICLES[device], SHAPE_SEED, this.shapeSet);
     this.geometry = new T.BufferGeometry();
     this.geometry.setAttribute('position', new T.BufferAttribute(shapes[0].slice(), 3));
-    for (let k = 0; k < SHAPE_COUNT; k++) this.geometry.setAttribute(`p${k}`, new T.BufferAttribute(shapes[k], 3));
+    for (let k = 0; k < SHAPE_COUNT; k++)
+      this.geometry.setAttribute(`p${k}`, new T.BufferAttribute(shapes[k], 3));
     this.geometry.setAttribute('rnd', new T.BufferAttribute(rnd, 1));
     this.geometry.setAttribute('orbit', new T.BufferAttribute(orbit, 4));
     // Morphed positions leave the shape-0 bounds; skip frustum culling instead of a stale sphere.
@@ -257,7 +225,6 @@ export class CinemaScene {
       const grow = AMBIENT_SMALL + (1 - AMBIENT_SMALL) * g * g * (3 - 2 * g);
       this.pivot.scale.setScalar(this.baseScale * birth * grow);
     }
-    const ratio = P / (SHAPE_COUNT - 1);
     this.mx = lerp(this.mx, this.tmx, POINTER_LERP);
     this.my = lerp(this.my, this.tmy, POINTER_LERP);
     const layers = this.pUniforms.uLayers;
@@ -270,16 +237,12 @@ export class CinemaScene {
     this.bgUniforms.uTime.value = time;
     this.bgUniforms.uMouse.value.set(this.mx, -this.my);
 
-    // Framing between chapters (smoothstep inside each segment).
     const device: Profile = this.ambient ? 'ambient' : this.compact ? 'mobile' : 'desktop';
-    const k = Math.min(Math.floor(P), SHAPE_COUNT - 2);
-    const f = P - k;
-    const e = f * f * (3 - 2 * f);
-    this.pivot.position.x = lerp(FRAME_X[this.shapeSet][device][k], FRAME_X[this.shapeSet][device][k + 1], e);
-    this.pivot.position.y = lerp(FRAME_Y[this.shapeSet][device][k], FRAME_Y[this.shapeSet][device][k + 1], e);
-    this.pivot.rotation.y = time * 0.05 + ratio * Math.PI * 1.6 + this.mx * 0.35 + this.spinAngle;
-    const tilt = lerp(TILT_X[this.shapeSet][k], TILT_X[this.shapeSet][k + 1], e);
-    this.pivot.rotation.x = 0.18 + this.my * 0.18 + Math.sin(ratio * Math.PI) * 0.25 + tilt;
+    const pose = framePose(this.shapeSet, device, P, time, this.mx, this.my, this.spinAngle);
+    this.pivot.position.x = pose.x;
+    this.pivot.position.y = pose.y;
+    this.pivot.rotation.y = pose.rotY;
+    this.pivot.rotation.x = pose.rotX;
 
     this.renderer.render(this.scene, this.camera);
   }

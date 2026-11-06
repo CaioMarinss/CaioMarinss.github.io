@@ -15,15 +15,24 @@ import {
 } from '@angular/core';
 import { LanguageService } from '../content/language';
 import { PageService } from '../content/page';
+import { hasWebGL } from './chapter-math';
 import { DisplayMode } from './display-mode';
 import { ProjectHover } from './project-hover';
+import type { Canvas2dSceneOptions } from './scene/canvas2d-scene';
 import type { CinemaScene, CinemaSceneOptions, ThreeModule } from './scene/cinema-scene';
 import { ScrollDirector } from './scroll-director';
 
 /** What the component needs from the scene (a fake in tests). */
 export type SceneHandle = Pick<
   CinemaScene,
-  'setProgress' | 'setPointer' | 'nudge' | 'setLayerLabels' | 'getLayerAnchors' | 'resize' | 'render' | 'dispose'
+  | 'setProgress'
+  | 'setPointer'
+  | 'nudge'
+  | 'setLayerLabels'
+  | 'getLayerAnchors'
+  | 'resize'
+  | 'render'
+  | 'dispose'
 >;
 
 /** The only runtime import of `three`: a lazy chunk loaded after the first render. */
@@ -35,11 +44,47 @@ export const THREE_LOADER = new InjectionToken<() => Promise<ThreeModule>>('THRE
 export type SceneFactory = (canvas: HTMLCanvasElement, opts: CinemaSceneOptions) => SceneHandle;
 
 /** Scene code (shapes, shaders) is lazy as well, so the initial bundle carries none of the 3D layer. */
-export const CINEMA_SCENE_LOADER = new InjectionToken<() => Promise<SceneFactory>>('CINEMA_SCENE_LOADER', {
+export const CINEMA_SCENE_LOADER = new InjectionToken<() => Promise<SceneFactory>>(
+  'CINEMA_SCENE_LOADER',
+  {
+    providedIn: 'root',
+    factory: () => () =>
+      import('./scene/cinema-scene').then(
+        ({ CinemaScene }) =>
+          (canvas, opts) =>
+            new CinemaScene(canvas, opts),
+      ),
+  },
+);
+
+export type Canvas2dSceneFactory = (
+  canvas: HTMLCanvasElement,
+  opts: Canvas2dSceneOptions,
+) => SceneHandle;
+
+/** Fallback for desktops without WebGL; never downloaded when WebGL works. */
+export const CANVAS2D_SCENE_LOADER = new InjectionToken<() => Promise<Canvas2dSceneFactory>>(
+  'CANVAS2D_SCENE_LOADER',
+  {
+    providedIn: 'root',
+    factory: () => () =>
+      import('./scene/canvas2d-scene').then(
+        ({ Canvas2dScene }) =>
+          (canvas, opts) =>
+            new Canvas2dScene(canvas, opts),
+      ),
+  },
+);
+
+export const WEBGL_SUPPORT = new InjectionToken<() => boolean>('WEBGL_SUPPORT', {
   providedIn: 'root',
-  factory: () => () =>
-    import('./scene/cinema-scene').then(({ CinemaScene }) => (canvas, opts) => new CinemaScene(canvas, opts)),
+  factory: () => {
+    const doc = inject(DOCUMENT);
+    return () => hasWebGL(doc);
+  },
 });
+
+export type CinemaRenderer = 'webgl' | 'canvas2d';
 
 /** Front → API → database, top to bottom, matching the layers of shape 2. */
 const LAYER_LABELS = ['Angular', 'Spring Boot + JWT', 'MySQL'] as const;
@@ -73,19 +118,22 @@ const MOBILE_QUERY = '(max-width: 860px)';
 const FINE_POINTER_QUERY = '(hover: hover) and (pointer: fine)';
 
 /**
- * Full-screen WebGL layer of the cinema mode. Loads Three.js lazily, renders from the
- * ScrollDirector's frame loop and overlays HTML labels/previews driven by the hovered project.
- * Any failure (chunk, constructor, lost context) drops the page to the static mode.
+ * Full-screen 3D layer of the cinema mode. Loads Three.js lazily (or the Canvas 2D scene when WebGL
+ * is missing), renders from the ScrollDirector's frame loop and overlays HTML labels/previews driven
+ * by the hovered project. Any failure (chunks, constructors, lost context) drops the page to the
+ * static mode.
  */
 @Component({
   selector: 'app-cinema-canvas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { 'aria-hidden': 'true' },
+  host: { 'aria-hidden': 'true', '[attr.data-renderer]': 'renderer()' },
   template: `
     <canvas #canvas></canvas>
     <ul class="layers" [class.on]="labelsOn()">
       @for (label of labels; track label) {
-        <li #label><span>{{ label }}</span></li>
+        <li #label>
+          <span>{{ label }}</span>
+        </li>
       }
     </ul>
     @if (preview(); as pv) {
@@ -191,6 +239,7 @@ export class CinemaCanvas {
   private readonly hover = inject(ProjectHover).hovered;
   private readonly content = inject(LanguageService).content;
   private readonly scene = signal<SceneHandle | null>(null);
+  protected readonly renderer = signal<CinemaRenderer | null>(null);
   /** Client-only: floating previews only make sense with a mouse. */
   private readonly finePointer = signal(false);
 
@@ -218,6 +267,8 @@ export class CinemaCanvas {
     const director = inject(ScrollDirector);
     const loadThree = inject(THREE_LOADER);
     const loadScene = inject(CINEMA_SCENE_LOADER);
+    const loadCanvas2d = inject(CANVAS2D_SCENE_LOADER);
+    const webgl = inject(WEBGL_SUPPORT);
     const pages = inject(PageService);
     const teardown: (() => void)[] = [];
     let destroyed = false;
@@ -253,18 +304,34 @@ export class CinemaCanvas {
       this.finePointer.set(win.matchMedia?.(FINE_POINTER_QUERY).matches ?? false);
       const canvas = this.canvas().nativeElement;
 
-      let scene: SceneHandle;
-      try {
-        const [three, createScene] = await Promise.all([loadThree(), loadScene()]);
-        if (destroyed) return;
-        scene = createScene(canvas, {
-          mobile: win.matchMedia?.(MOBILE_QUERY).matches ?? false,
-          shapes: pages.page(),
-          three,
-        });
-      } catch (error) {
-        fail('cinema: 3D scene unavailable, using the static layout', error);
-        return;
+      const mobile = win.matchMedia?.(MOBILE_QUERY).matches ?? false;
+      const shapes = pages.page();
+
+      let scene: SceneHandle | null = null;
+      if (webgl()) {
+        try {
+          const [three, createScene] = await Promise.all([loadThree(), loadScene()]);
+          if (destroyed) return;
+          scene = createScene(canvas, { mobile, shapes, three });
+          this.renderer.set('webgl');
+        } catch (error) {
+          console.warn(error);
+        }
+      }
+      if (!scene) {
+        try {
+          const createScene = await loadCanvas2d();
+          if (destroyed) return;
+          scene = createScene(canvas, {
+            mobile,
+            shapes,
+            onTooSlow: () => fail('cinema: 2D scene too slow, using the static layout'),
+          });
+          this.renderer.set('canvas2d');
+        } catch (error) {
+          fail('cinema: 3D scene unavailable, using the static layout', error);
+          return;
+        }
       }
       this.scene.set(scene);
 
@@ -297,7 +364,9 @@ export class CinemaCanvas {
       listen(win, 'resize', resize);
       resize();
 
-      listen(canvas, 'webglcontextlost', () => fail('cinema: WebGL context lost, using the static layout'));
+      listen(canvas, 'webglcontextlost', () =>
+        fail('cinema: WebGL context lost, using the static layout'),
+      );
 
       const start = performance.now();
       let labelsUntil = 0;
@@ -313,7 +382,10 @@ export class CinemaCanvas {
           iy += (py - iy) * PREVIEW_LERP;
           const h = (PREVIEW_WIDTH * pv.height) / pv.width;
           if (listRight === null) measureList();
-          const pos = previewPosition(listRight, iy, h, { width: win.innerWidth, height: win.innerHeight });
+          const pos = previewPosition(listRight, iy, h, {
+            width: win.innerWidth,
+            height: win.innerHeight,
+          });
           img.style.visibility = pos ? 'visible' : 'hidden';
           if (pos) img.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
         } else {
